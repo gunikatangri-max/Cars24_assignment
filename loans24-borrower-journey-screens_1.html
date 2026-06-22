@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loans24 · Borrower Journey Screens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4F6F8; --card:#FFFFFF;
+    --ink:#15181F; --ink-soft:#5A6172; --ink-faint:#8A92A0;
+    --line:#E4E7EC; --line-strong:#CDD3DB;
+    --amber:#C9810A; --amber-bright:#E89A12; --amber-soft:#FAEFD8;
+    --approve:#187A52; --approve-soft:#E4F2EB; --approve-bright:#1E9A66;
+    --reject:#B23A2C; --reject-soft:#FBEAE7;
+    --navy:#1F2A44; --navy-deep:#141C30;
+    --display:'Space Grotesk',system-ui,sans-serif;
+    --body:'Inter',system-ui,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--amber)}
+  h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.12;letter-spacing:-.01em;margin:0}
+
+  header.top{padding:60px 0 36px;border-bottom:1px solid var(--line)}
+  header.top h1{font-size:clamp(30px,5vw,46px);font-weight:700;margin:16px 0 14px;max-width:18ch}
+  header.top .sub{font-size:18px;color:var(--ink-soft);max-width:60ch;font-weight:500}
+
+  section{padding:50px 0;border-bottom:1px solid var(--line)}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:8px}
+  .sec-num{font-family:var(--mono);font-size:13px;color:var(--amber);font-weight:600}
+  .sec-head h2{font-size:clamp(22px,3.4vw,30px)}
+  .lead{font-size:16.5px;color:var(--ink-soft);max-width:64ch;margin:0 0 22px}
+
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:24px;font-family:var(--mono);font-size:12px}
+  .legend span{display:inline-flex;align-items:center;gap:8px;color:var(--ink-soft)}
+  .swatch{width:13px;height:13px;border-radius:4px}
+  .sw-core{background:var(--amber-bright)}
+  .sw-gen{background:var(--line-strong)}
+
+  /* ---------- FILMSTRIP ---------- */
+  .filmstrip{display:flex;gap:18px;overflow-x:auto;padding:6px 4px 26px;scroll-snap-type:x proximity}
+  .frame{flex:0 0 auto;width:256px;scroll-snap-align:start;display:flex;flex-direction:column}
+  .stepno{font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-bottom:9px;display:flex;align-items:center;gap:7px}
+  .tag{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:3px 7px;border-radius:5px}
+  .tag.gen{background:var(--line);color:var(--ink-faint)}
+  .tag.core{background:var(--amber-bright);color:#3a2602}
+
+  /* phone */
+  .phone{border-radius:34px;background:var(--navy-deep);padding:9px;box-shadow:0 18px 40px -18px rgba(20,28,48,.5)}
+  .frame.core .phone{box-shadow:0 0 0 3px var(--amber-bright),0 18px 44px -16px rgba(200,128,10,.5)}
+  .frame.generic .phone{opacity:.9}
+  .screen{background:#fff;border-radius:27px;overflow:hidden;height:498px;display:flex;flex-direction:column;position:relative}
+  .statusbar{display:flex;justify-content:space-between;align-items:center;padding:9px 18px 4px;font-family:var(--mono);font-size:10px;color:var(--ink);font-weight:600}
+  .statusbar .dots{display:flex;gap:3px}
+  .statusbar .dots i{width:4px;height:4px;border-radius:50%;background:var(--ink);display:block}
+  .apphead{padding:6px 18px 12px;display:flex;align-items:center;gap:8px}
+  .brand{font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:-.02em}
+  .brand .l24{color:var(--amber-bright)}
+  .scr-title{padding:4px 18px 2px;font-family:var(--display);font-weight:600;font-size:17px;line-height:1.2}
+  .scr-sub{padding:5px 18px 0;font-size:11.5px;color:var(--ink-soft);line-height:1.45}
+  .appbody{flex:1;padding:14px 18px;overflow:hidden;display:flex;flex-direction:column;gap:10px}
+  .cta{margin:auto 14px 14px;padding:12px;border-radius:13px;background:var(--navy);color:#fff;text-align:center;font-weight:600;font-size:13px;font-family:var(--display)}
+  .cta.amber{background:var(--amber-bright);color:#241700}
+  .cta.green{background:var(--approve-bright)}
+  .cta.ghost{background:#fff;border:1.5px solid var(--line-strong);color:var(--ink)}
+
+  /* generic content bits */
+  .checkrow{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid var(--line);border-radius:11px;font-size:12.5px}
+  .checkrow .ic{width:22px;height:22px;border-radius:50%;background:var(--approve-soft);color:var(--approve);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+  .checkrow .ic.pend{background:var(--amber-soft);color:var(--amber)}
+  .muted{font-size:11px;color:var(--ink-faint)}
+  .carcard{border:1px solid var(--line);border-radius:13px;overflow:hidden}
+  .carimg{height:94px;background:linear-gradient(135deg,#2A3654,#3D4D74);position:relative}
+  .carimg .badge{position:absolute;top:8px;left:8px;font-family:var(--mono);font-size:9px;background:rgba(255,255,255,.92);color:var(--navy);padding:3px 7px;border-radius:5px;font-weight:600}
+  .carmeta{padding:10px 12px}
+  .carmeta .nm{font-family:var(--display);font-weight:600;font-size:13.5px}
+  .carmeta .pr{font-size:12px;color:var(--ink-soft);margin-top:2px}
+
+  /* trust list (AA consent) */
+  .trust{display:flex;flex-direction:column;gap:8px}
+  .trust .ti{display:flex;gap:9px;font-size:11.5px;color:var(--ink);align-items:flex-start}
+  .trust .ti b{font-weight:600}
+  .trust .tk{color:var(--approve);font-weight:700;flex-shrink:0}
+  .aabar{display:flex;align-items:center;gap:8px;background:var(--approve-soft);border-radius:9px;padding:8px 10px;font-family:var(--mono);font-size:10px;color:var(--approve);font-weight:600}
+  .banklist{display:flex;gap:6px;flex-wrap:wrap}
+  .bankchip{font-family:var(--mono);font-size:10px;border:1px solid var(--line-strong);border-radius:7px;padding:5px 8px;color:var(--ink-soft)}
+
+  /* income bars */
+  .barchart{display:flex;align-items:flex-end;gap:5px;height:78px;padding:4px 0}
+  .bar{flex:1;background:var(--navy-soft,#D7DDEA);border-radius:4px 4px 0 0;position:relative}
+  .bar.peak{background:var(--amber-bright)}
+  .bar.base{background:#C3CBDA}
+  .readout{display:flex;flex-direction:column;gap:6px}
+  .readout .ri{display:flex;justify-content:space-between;font-size:11.5px;border-bottom:1px dashed var(--line);padding-bottom:6px}
+  .readout .ri b{font-weight:600}
+  .readout .ri .g{color:var(--approve);font-weight:600}
+
+  /* valuation */
+  .valbig{font-family:var(--display);font-size:26px;font-weight:700}
+  .scorepill{display:inline-flex;align-items:center;gap:6px;background:var(--approve-soft);color:var(--approve);font-family:var(--mono);font-size:10.5px;font-weight:600;padding:5px 9px;border-radius:20px}
+  .kv{display:flex;justify-content:space-between;font-size:11.5px;padding:6px 0;border-bottom:1px solid var(--line)}
+  .kv b{font-weight:600}
+
+  /* offer */
+  .offerhero{background:var(--approve-soft);border:1px solid #Bfe2d0;border-radius:14px;padding:14px;text-align:center}
+  .offerhero .ok{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--approve);font-weight:600}
+  .offerhero .amt{font-family:var(--display);font-size:26px;font-weight:700;margin:4px 0 1px}
+  .offerhero .rate{font-size:12px;color:var(--ink-soft)}
+  .signal{font-size:11px}
+  .signal .sl{display:flex;justify-content:space-between;margin-bottom:3px}
+  .meter{height:6px;border-radius:4px;background:var(--line);overflow:hidden}
+  .meter i{display:block;height:100%;background:var(--approve-bright);border-radius:4px}
+  .vsbank{font-size:10.5px;color:var(--ink-faint);text-align:center;font-family:var(--mono);border-top:1px dashed var(--line);padding-top:8px}
+  .vsbank b{color:var(--reject)}
+
+  /* emi */
+  .emihero{text-align:center;padding:6px 0}
+  .emihero .amt{font-family:var(--display);font-size:24px;font-weight:700}
+  .progress{height:7px;border-radius:5px;background:var(--line);overflow:hidden;margin:6px 0}
+  .progress i{display:block;height:100%;width:18%;background:var(--navy)}
+  .care{display:flex;gap:8px;background:var(--amber-soft);border-radius:10px;padding:9px 11px;font-size:11px;color:#5a4209;line-height:1.4}
+
+  /* annotation callout */
+  .note{margin-top:12px;background:var(--card);border:1px solid var(--amber-bright);border-left-width:4px;border-radius:11px;padding:12px 14px;min-height:96px}
+  .note .nt{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:6px}
+  .note p{margin:0;font-size:12.5px;line-height:1.5;color:var(--ink)}
+  .note p b{font-weight:600}
+  .note.spacer{border:1px dashed var(--line);border-left-width:1px;background:transparent}
+  .note.spacer .nt{color:var(--ink-faint)}
+  .note.spacer p{color:var(--ink-faint);font-size:11.5px}
+  .caption{font-size:13px;font-weight:600;font-family:var(--display);margin-top:13px}
+
+  /* contrast banner */
+  .contrast{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;margin:4px 0 0}
+  .cbox{border-radius:14px;padding:18px 20px}
+  .cbox.new{background:var(--approve-soft);border:1px solid #Bfe2d0}
+  .cbox.old{background:#EFEAE0;border:1px solid #DDD3C0}
+  .cbox .ch{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:7px}
+  .cbox.new .ch{color:var(--approve)}
+  .cbox.old .ch{color:#8a6d2f}
+  .cbox .cm{font-family:var(--display);font-size:17px;font-weight:600;line-height:1.25}
+  .cbox .cd{font-size:12.5px;color:var(--ink-soft);margin-top:5px}
+  .vs{font-family:var(--display);font-weight:700;color:var(--ink-faint);font-size:14px}
+
+  /* ---------- LEGACY PROCESS FLOWCHART (unused; kept for reference) ---------- */
+  .process{background:#EDE7DB;border:1px solid #D8CDB8;border-radius:8px;padding:30px 26px;margin-top:6px;position:relative}
+  .process::before{content:"AS-IS PROCESS";position:absolute;top:14px;right:18px;font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:#A99A77;border:1px solid #C9Bc9c;padding:4px 9px;border-radius:3px;transform:rotate(2deg)}
+  .pflow{display:grid;grid-template-columns:78px 1fr;gap:0}
+  .rail{position:relative}
+  .daymark{font-family:var(--mono);font-size:11px;font-weight:600;color:#9A2A1E;padding:0 0 4px;letter-spacing:.04em}
+  .daymark span{font-size:9px;color:#A99A77;display:block;font-weight:500;letter-spacing:.1em}
+  .pcolumn{display:flex;flex-direction:column;gap:0}
+  .pstep{background:#FBF8F1;border:1.5px solid #2E2A22;border-radius:0;padding:13px 16px;position:relative}
+  .pstep .pt{font-family:var(--display);font-weight:600;font-size:14px;color:#2E2A22}
+  .pstep .pd{font-size:12px;color:#5c5547;margin-top:4px;line-height:1.45}
+  .pstep .docs{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+  .doc{font-family:var(--mono);font-size:9.5px;background:#fff;border:1px solid #C9Bc9c;padding:3px 7px;border-radius:0;color:#5c5547}
+  .frictag{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A2A1E;background:#F6E2Dd;border:1px solid #E3BdB6;padding:3px 7px;border-radius:0;margin-top:9px}
+  .parrow{height:26px;display:flex;align-items:center;justify-content:center}
+  .parrow svg{display:block}
+  .poutcomes{margin-top:8px;display:flex;flex-wrap:wrap;gap:8px}
+  .outcome{flex:1 1 150px;border:1.5px dashed #9A2A1E;background:#F6E2Dd;padding:10px 12px;font-size:11.5px;color:#7a261c;border-radius:0}
+  .outcome b{display:block;font-family:var(--display);font-size:12.5px;color:#9A2A1E;margin-bottom:2px}
+
+  footer{padding:36px 0 54px;color:var(--ink-faint);font-size:12px;font-family:var(--mono)}
+
+  /* ---------- MOATS BAND ---------- */
+  .moats{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+  .moat{border-radius:16px;padding:22px 24px;border:1px solid}
+  .moat.m1{background:var(--navy);border-color:var(--navy)}
+  .moat.m2{background:var(--amber-soft);border-color:#EEDCB4}
+  .moat .mlabel{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:9px}
+  .moat.m1 .mlabel{color:#F2C572}.moat.m2 .mlabel{color:var(--amber)}
+  .moat .mbig{font-family:var(--display);font-size:21px;font-weight:700;line-height:1.18}
+  .moat.m1 .mbig{color:#fff}.moat.m2 .mbig{color:var(--ink)}
+  .moat .mdesc{font-size:13.8px;margin-top:9px;line-height:1.5}
+  .moat.m1 .mdesc{color:#D7DCE6}.moat.m2 .mdesc{color:var(--ink-soft)}
+  .moat .mtag{display:inline-block;margin-top:13px;font-family:var(--mono);font-size:10.5px;font-weight:600;padding:5px 10px;border-radius:20px}
+  .moat.m1 .mtag{background:rgba(255,255,255,.13);color:#fff}.moat.m2 .mtag{background:#fff;color:var(--amber)}
+  .moat-root{font-family:var(--mono);font-size:12px;color:var(--ink-faint);text-align:center;margin-top:16px}
+  .moat-root b{color:var(--ink)}
+
+  /* ---------- PEER (SPINNY) FLOW ---------- */
+  .peer{background:#EEF0F4;border:1px solid #DADFE8;border-radius:14px;padding:30px 26px 24px;position:relative}
+  .peer::before{content:"PEER MODEL";position:absolute;top:14px;right:18px;font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:#9AA3B5;border:1px solid #C7CEDC;padding:4px 9px;border-radius:5px}
+  .pstep2{background:#fff;border:1px solid #D2D8E2;border-radius:11px;padding:14px 16px}
+  .pstep2 .pt{font-family:var(--display);font-weight:600;font-size:14.5px}
+  .pstep2 .pd{font-size:12.8px;color:var(--ink-soft);margin-top:4px;line-height:1.45}
+  .pstep2 .pd b{font-weight:600;color:var(--ink)}
+  .pstep2.ok{border-left:3px solid var(--approve-bright)}
+  .pstep2.warn{border-left:3px solid var(--amber-bright)}
+  .pstep2.gate{border:1.5px solid var(--reject);background:var(--reject-soft)}
+  .pstep2.gate .pt{color:var(--reject)}
+  .parrow2{height:24px;display:flex;align-items:center;justify-content:center}.parrow2 svg{display:block}
+  .partners{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .pbank{font-family:var(--mono);font-size:9.5px;background:#F4F6F8;border:1px solid #D2D8E2;border-radius:6px;padding:3px 7px;color:var(--ink-soft)}
+  .gatetag{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--reject);margin-top:9px}
+  .pout{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px}
+  .pout .o{flex:1 1 150px;border:1.5px dashed var(--reject);background:#fff;padding:10px 12px;font-size:11.5px;color:#7a261c;border-radius:8px}
+  .pout .o b{display:block;font-family:var(--display);font-size:12.5px;color:var(--reject);margin-bottom:2px}
+  .winrow{margin-top:18px;border-top:1px dashed #C7CEDC;padding-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .winrow .wl{font-family:var(--mono);font-size:11px;color:var(--ink-faint)}
+  .wintag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:600;padding:5px 10px;border-radius:20px}
+  .wintag.s{background:var(--navy);color:#fff}.wintag.r{background:var(--amber-soft);color:var(--amber)}
+
+  @media(max-width:760px){
+    .contrast{grid-template-columns:1fr}
+    .vs{justify-self:center}
+    .moats{grid-template-columns:1fr}
+    .pflow{grid-template-columns:60px 1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="eyebrow">Prototype · Borrower Journey</div>
+    <h1>Approve more, price lower — in the same two minutes.</h1>
+    <div class="sub">Self-employed underwriting, screen by screen. KYC and repayment are standard; the four underwriting screens are where the two moats happen. At the end: the Spinny model — fast, but it can't follow.</div>
+  </header>
+
+  <!-- MOATS HIGHLIGHT -->
+  <section>
+    <div class="sec-head"><span class="sec-num">★</span><h2>The two moats</h2></div>
+    <p class="lead">Speed is already built — and Spinny has it too — so it isn't the edge. Reading risk precisely is, and it pays off twice:</p>
+    <div class="moats">
+      <div class="moat m1">
+        <div class="mlabel">Moat 1 · Out-approve</div>
+        <div class="mbig">Approve the borrowers Spinny rejects.</div>
+        <div class="mdesc">Spinny routes credit to partner banks tuned for prime profiles, so self-employed buyers fall out. Reading real cash flow lets us safely say yes — and every safe yes is market share.</div>
+        <div class="mtag">▲ Market share</div>
+      </div>
+      <div class="moat m2">
+        <div class="mlabel">Moat 2 · Out-price</div>
+        <div class="mbig">Move the rate toward the bank's.</div>
+        <div class="mdesc">A precise risk read strips the uncertainty premium NBFCs pad in. The good borrower's rate moves toward the bank benchmark — the "₹3,000 more a month" shrinks.</div>
+        <div class="mtag">▼ Lower interest</div>
+      </div>
+    </div>
+    <div class="moat-root">Both come from <b>one engine</b> — cash-flow × collateral. The screens below show it working; the peer flow at the end shows what Spinny structurally can't do.</div>
+  </section>
+
+  <!-- LOANS24 FLOW -->
+  <section>
+    <div class="sec-head"><span class="sec-num">A</span><h2>Loans24 — the borrower's flow</h2></div>
+    <p class="lead">Rajesh is buying a ₹6.5L used SUV on Cars24. He never uploads an ITR or a balance sheet. The whole journey takes minutes.</p>
+    <div class="legend">
+      <span><i class="swatch sw-core"></i> Our solution — the underwriting core</span>
+      <span><i class="swatch sw-gen"></i> Standard step (KYC / signing / repayment)</span>
+      <span style="color:var(--ink-faint)">→ scroll to walk the full journey</span>
+    </div>
+
+    <div class="filmstrip">
+
+      <!-- 1 PICK CAR (generic) -->
+      <div class="frame generic">
+        <div class="stepno">STEP 1<span class="tag gen">Standard</span></div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
+          <div class="apphead"><span class="brand">CARS<span class="l24">24</span></span></div>
+          <div class="scr-title">Finance this car</div>
+          <div class="appbody">
+            <div class="carcard">
+              <div class="carimg"><span class="badge">CARS24 CERTIFIED</span></div>
+              <div class="carmeta"><div class="nm">2021 Hyundai Creta SX</div><div class="pr">₹6,50,000 · 38,000 km · Surat</div></div>
+            </div>
+            <div class="muted">Get an instant decision. No documents to dig up.</div>
+          </div>
+          <div class="cta amber">Check my eligibility</div>
+        </div></div>
+        <div class="caption">Pick a car</div>
+        <div class="note spacer"><div class="nt">Standard</div><p>Entry point inside the Cars24 marketplace — the borrower is already choosing a real, known car.</p></div>
+      </div>
+
+      <!-- 2 KYC (generic) -->
+      <div class="frame generic">
+        <div class="stepno">STEP 2<span class="tag gen">Standard</span></div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
+          <div class="apphead"><span class="brand">CARS<span class="l24">24</span></span></div>
+          <div class="scr-title">Quick verification</div>
+          <div class="scr-sub">We confirm who you are using India's standard digital ID rails.</div>
+          <div class="appbody">
+            <div class="checkrow"><span class="ic">✓</span><div><b>PAN</b><div class="muted">Verified</div></div></div>
+            <div class="checkrow"><span class="ic">✓</span><div><b>Aadhaar eKYC</b><div class="muted">OTP confirmed</div></div></div>
+            <div class="checkrow"><span class="ic pend">·</span><div><b>Selfie match</b><div class="muted">In progress…</div></div></div>
+            <div class="muted">Done in about 30 seconds.</div>
+          </div>
+          <div class="cta">Continue</div>
+        </div></div>
+        <div class="caption">KYC</div>
+        <div class="note spacer"><div class="nt">Standard</div><p>eKYC / DigiLocker — already a solved problem in India. We keep it light and move on.</p></div>
+      </div>
+
+      <!-- 3 AA CONSENT (core) -->
+      <div class="frame core">
+        <div class="stepno">STEP 3<span class="tag core">Our solution</span></div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
+          <div class="apphead"><span class="brand">CARS<span class="l24">24</span></span></div>
+          <div class="scr-title">Connect your bank</div>
+          <div class="scr-sub">Skip the paperwork. Let us securely read your bank activity to understand your real income.</div>
+          <div class="appbody">
+            <div class="trust">
+              <div class="ti"><span class="tk">✓</span><span>You approve exactly what's shared — <b>last 6 months</b> only</span></div>
+              <div class="ti"><span class="tk">✓</span><span><b>Revocable anytime.</b> We can't move your money</span></div>
+              <div class="ti"><span class="tk">✓</span><span>No ITR, no balance sheet, no 2-year financials</span></div>
+            </div>
+            <div class="banklist"><span class="bankchip">HDFC</span><span class="bankchip">SBI</span><span class="bankchip">ICICI</span><span class="bankchip">+ more</span></div>
+            <div class="aabar">SECURED VIA RBI ACCOUNT AGGREGATOR</div>
+          </div>
+          <div class="cta green">Give consent securely</div>
+        </div></div>
+        <div class="caption">Account Aggregator consent</div>
+        <div class="note"><div class="nt">Why this is the unlock</div><p>For a self-employed borrower, documents are the wall. <b>Consent-based data replaces the document chase</b> — and the trust markers make sharing feel safe.</p></div>
+      </div>
+
+      <!-- 4 READING INCOME (core) -->
+      <div class="frame core">
+        <div class="stepno">STEP 4<span class="tag core">Our solution</span></div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
+          <div class="apphead"><span class="brand">CARS<span class="l24">24</span></span></div>
+          <div class="scr-title">Reading your cash flow</div>
+          <div class="scr-sub">6 months of activity, understood in seconds.</div>
+          <div class="appbody">
+            <div class="barchart">
+              <div class="bar base" style="height:38%"></div><div class="bar base" style="height:30%"></div>
+              <div class="bar base" style="height:52%"></div><div class="bar peak" style="height:88%"></div>
+              <div class="bar peak" style="height:96%"></div><div class="bar base" style="height:60%"></div>
+            </div>
+            <div class="readout">
+              <div class="ri"><span>Real monthly income</span><b class="g">₹1.3L / mo</b></div>
+              <div class="ri"><span>Pattern</span><b>Seasonal (Oct–Dec peak)</b></div>
+              <div class="ri"><span>6-month trend</span><b class="g">Stable ↑</b></div>
+            </div>
+            <div class="muted">Lumpy income is normal for business owners — we account for it.</div>
+          </div>
+          <div class="cta amber">See my offer</div>
+        </div></div>
+        <div class="caption">Income, reconstructed</div>
+        <div class="note"><div class="nt">The niche use case</div><p>Reads <b>real, current</b> income — not a lagging ITR. Seasonality is <b>modeled, not penalized</b>, so a strong but lumpy borrower isn't mistaken for a risky one.</p></div>
+      </div>
+
+      <!-- 5 COLLATERAL (core) -->
+      <div class="frame core">
+        <div class="stepno">STEP 5<span class="tag core">Our solution</span></div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
+          <div class="apphead"><span class="brand">CARS<span class="l24">24</span></span></div>
+          <div class="scr-title">Your car, valued live</div>
+          <div class="scr-sub">We don't estimate this car. We have its data.</div>
+          <div class="appbody">
+            <div class="carcard"><div class="carimg" style="height:74px"><span class="badge">200-PT INSPECTED</span></div></div>
+            <div>
+              <div class="muted">Live market value</div>
+              <div class="valbig">₹6,40,000</div>
+            </div>
+            <div class="scorepill">● CONDITION 8.7 / 10</div>
+            <div class="kv"><span>Resale liquidity (Surat)</span><b>~9 days</b></div>
+            <div class="kv" style="border:none"><span>History</span><b>Clean · 1 owner</b></div>
+          </div>
+          <div class="cta">Continue</div>
+        </div></div>
+        <div class="caption">Live collateral value</div>
+        <div class="note"><div class="nt">The moat</div><p>No rival — bank or Spinny — sees the car this precisely. Knowing the asset is <b>why Loans24 can safely lend more, at a lower rate</b>.</p></div>
+      </div>
+
+      <!-- 6 OFFER (core) -->
+      <div class="frame core">
+        <div class="stepno">STEP 6<span class="tag core">Our solution</span></div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
+          <div class="apphead"><span class="brand">CARS<span class="l24">24</span></span></div>
+          <div class="scr-title">You're approved</div>
+          <div class="appbody">
+            <div class="offerhero"><div class="ok">Sanctioned</div><div class="amt">₹6,50,000</div><div class="rate">at 12.8% · up to 6 yrs</div></div>
+            <div class="signal"><div class="sl"><span>Cash-flow signal</span><b>Strong</b></div><div class="meter"><i style="width:82%"></i></div></div>
+            <div class="signal"><div class="sl"><span>Collateral signal</span><b>Strong</b></div><div class="meter"><i style="width:88%"></i></div></div>
+            <div class="vsbank">Spinny would <b>route this to a bank &amp; likely reject</b> — or price a premium</div>
+          </div>
+          <div class="cta green">Accept offer</div>
+        </div></div>
+        <div class="caption">The composite offer</div>
+        <div class="note"><div class="nt">Both moats, one screen</div><p><b>▲ Approved</b> where a prime-only peer rejects, and <b>▼ priced to true risk</b> — not a padded NBFC rate. Score = cash-flow × collateral.</p></div>
+      </div>
+
+      <!-- 7 SIGN (generic) -->
+      <div class="frame generic">
+        <div class="stepno">STEP 7<span class="tag gen">Standard</span></div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
+          <div class="apphead"><span class="brand">CARS<span class="l24">24</span></span></div>
+          <div class="scr-title">Almost done</div>
+          <div class="scr-sub">Review the key terms and e-sign.</div>
+          <div class="appbody">
+            <div class="kv"><span>Loan amount</span><b>₹6,50,000</b></div>
+            <div class="kv"><span>EMI</span><b>₹11,040 / mo</b></div>
+            <div class="kv" style="border:none"><span>Tenure</span><b>72 months</b></div>
+            <div class="checkrow"><span class="ic">✓</span><div><b>Key Fact Statement</b><div class="muted">Reviewed</div></div></div>
+            <div class="muted">Funds go directly to the seller on signing.</div>
+          </div>
+          <div class="cta">e-Sign &amp; disburse</div>
+        </div></div>
+        <div class="caption">Sign &amp; disburse</div>
+        <div class="note spacer"><div class="nt">Standard</div><p>e-Mandate + e-sign. The same for everyone — no special handling needed.</p></div>
+      </div>
+
+      <!-- 8 REPAYMENT (generic + monitoring nod) -->
+      <div class="frame generic">
+        <div class="stepno">STEP 8<span class="tag gen">Standard</span></div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
+          <div class="apphead"><span class="brand">CARS<span class="l24">24</span></span></div>
+          <div class="scr-title">Your loan</div>
+          <div class="appbody">
+            <div class="emihero"><div class="muted">Next EMI · due 5 Jul</div><div class="amt">₹11,040</div></div>
+            <div class="progress"><i></i></div>
+            <div class="muted">13 of 72 paid · on track</div>
+            <div class="care"><div>If a month looks tight, we'll reach out early with options — before a payment is ever missed.</div></div>
+          </div>
+          <div class="cta ghost">Pay now</div>
+        </div></div>
+        <div class="caption">Repayment &amp; support</div>
+        <div class="note spacer"><div class="nt">Standard · with a quiet edge</div><p>Generic servicing UI — but ongoing consent lets the same engine spot stress early (the §6 monitoring loop).</p></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CONTRAST BANNER -->
+  <section>
+    <div class="sec-head"><span class="sec-num">B</span><h2>Loans24 vs Spinny — same fast app, two outcomes</h2></div>
+    <p class="lead">Both pre-approve in minutes. The difference is who gets in, and at what price:</p>
+    <div class="contrast">
+      <div class="cbox new"><div class="ch">Loans24</div><div class="cm">Approves more, prices lower.</div><div class="cd">Owns the NBFC <em>and</em> the car data → reads cash flow × collateral → says yes to Rajesh, at a fair risk-based rate.</div></div>
+      <div class="vs">vs</div>
+      <div class="cbox old"><div class="ch">Spinny</div><div class="cm">Fast, but built for prime.</div><div class="cd">Routes credit to ~18 partner banks → inherits their prime bias → rejects Rajesh, or pads a premium. Can't fix it — doesn't own underwriting.</div></div>
+    </div>
+  </section>
+
+  <!-- SPINNY MODEL FLOW -->
+  <section style="border-bottom:none">
+    <div class="sec-head"><span class="sec-num">C</span><h2>The Spinny model — fast, but it can't follow</h2></div>
+    <p class="lead">Spinny's journey is sleek; the limit isn't speed. It's that the credit decision isn't theirs, and it's tuned for prime. Here's where Rajesh falls out — and exactly where our two moats win.</p>
+
+    <div class="peer">
+      <div class="pcolumn">
+        <div class="pstep2 ok">
+          <div class="pt">1 · One-click financing</div>
+          <div class="pd">Frictionless, inside a premium buying flow. Only Spinny-assured cars, so valuation is pre-automated. <b>We match this</b> — speed isn't the gap.</div>
+        </div>
+        <div class="parrow2"><svg width="20" height="22" viewBox="0 0 20 22"><line x1="10" y1="0" x2="10" y2="14" stroke="#B6BDCB" stroke-width="2"/><path d="M5 11 L10 18 L15 11" fill="none" stroke="#B6BDCB" stroke-width="2" stroke-linejoin="round"/></svg></div>
+
+        <div class="pstep2 warn">
+          <div class="pt">2 · Credit routed to partners</div>
+          <div class="pd">The decision is <b>outsourced to ~18 finance partners</b> and approved at their discretion. Spinny doesn't own the risk engine.</div>
+          <div class="partners"><span class="pbank">Partner bank</span><span class="pbank">Partner NBFC</span><span class="pbank">Partner bank</span><span class="pbank">+ ~15 more</span></div>
+        </div>
+        <div class="parrow2"><svg width="20" height="22" viewBox="0 0 20 22"><line x1="10" y1="0" x2="10" y2="14" stroke="#B6BDCB" stroke-width="2"/><path d="M5 11 L10 18 L15 11" fill="none" stroke="#B6BDCB" stroke-width="2" stroke-linejoin="round"/></svg></div>
+
+        <div class="pstep2 gate">
+          <div class="pt">3 · Prime-bias gate</div>
+          <div class="pd">Partner criteria favour clean salaried / prime files. Rajesh — lumpy income, lagging ITR, thin bureau — fails the template.</div>
+          <div class="gatetag">✕ self-employed falls out here</div>
+        </div>
+        <div class="parrow2"><svg width="20" height="22" viewBox="0 0 20 22"><line x1="10" y1="0" x2="10" y2="14" stroke="#B6BDCB" stroke-width="2"/><path d="M5 11 L10 18 L15 11" fill="none" stroke="#B6BDCB" stroke-width="2" stroke-linejoin="round"/></svg></div>
+
+        <div class="pstep2 gate">
+          <div class="pt">4 · Outcome for Rajesh</div>
+          <div class="pout">
+            <div class="o"><b>Rejected</b>doesn't fit the prime template</div>
+            <div class="o"><b>or repriced</b>premium padded for uncertainty</div>
+            <div class="o"><b>can't be fixed</b>Spinny doesn't own underwriting</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="winrow">
+        <span class="wl">Where Loans24 wins:</span>
+        <span class="wintag s">▲ Moat 1 — we approve him (at step 3)</span>
+        <span class="wintag r">▼ Moat 2 — we price to true risk (at step 4)</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Loans24 · Borrower Journey Screens · Draft v2 — KYC &amp; repayment generic by design; underwriting screens carry the two moats. Peer model = Spinny. Figures illustrative.
+  </footer>
+
+</div>
+</body>
+</html>
