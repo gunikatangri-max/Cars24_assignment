@@ -11,7 +11,7 @@ The tools for this project include
 2. Gemini -- For research
 3. Figma -- Designing basic wireframes (refined and published using claude)
 4. Github -- Documenting and Hosting
-5. My past reasearch for previous round Assignment of Cars24 -- https://docs.google.com/document/d/1h75KIcNMuFLg7y9boD3O9DQIz9cW0WSrUM3kahsauyE/edit?tab=t.jaelbn8ftuo7#heading=h.oudz7grdta5n
+5. My past reasearch -- for previous round Assignment of Cars24 [[Link]](https://docs.google.com/document/d/1h75KIcNMuFLg7y9boD3O9DQIz9cW0WSrUM3kahsauyE/edit?tab=t.jaelbn8ftuo7#heading=h.oudz7grdta5n)
 
 The website is hosted in this [link](https://gunikatangri-max.github.io/Cars24_assignment/)
 
