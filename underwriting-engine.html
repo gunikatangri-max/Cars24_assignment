@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loans24 · Underwriting Engine (Prototype)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4F6F8;--card:#FFFFFF;--ink:#15181F;--ink-soft:#5A6172;--ink-faint:#8A92A0;
+    --line:#E4E7EC;--line-strong:#CDD3DB;
+    --amber:#C9810A;--amber-bright:#E89A12;--amber-soft:#FAEFD8;
+    --approve:#187A52;--approve-soft:#E4F2EB;--approve-bright:#1E9A66;
+    --reject:#B23A2C;--reject-soft:#FBEAE7;--reject-bright:#D04632;
+    --navy:#1F2A44;--navy-deep:#141C30;
+    --display:'Space Grotesk',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:900px;margin:0 auto;padding:0 22px}
+  .eyebrow{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--amber)}
+  h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.15;letter-spacing:-.01em;margin:0}
+  a{color:var(--amber)}
+
+  header.top{padding:52px 0 28px}
+  .brandrow{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+  .logo{font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:-.02em}
+  .logo .l24{color:var(--amber-bright)}
+  .logo .e{font-weight:500;color:var(--ink-faint);font-size:13px;margin-left:4px}
+  header.top h1{font-size:clamp(26px,4.6vw,38px);font-weight:700;margin:6px 0 12px;max-width:20ch}
+  header.top .sub{font-size:16px;color:var(--ink-soft);max-width:62ch}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:18px}
+  .card h2{font-size:18px;margin-bottom:4px}
+  .card .ch-sub{font-size:13.5px;color:var(--ink-soft);margin-bottom:16px}
+
+  /* sample buttons */
+  .samples{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .sbtn{text-align:left;border:1px solid var(--line-strong);border-radius:13px;padding:15px 16px;background:#fff;cursor:pointer;transition:.15s;font-family:inherit}
+  .sbtn:hover{border-color:var(--amber-bright);box-shadow:0 6px 18px -10px rgba(200,128,10,.4)}
+  .sbtn .sname{font-family:var(--display);font-weight:600;font-size:15px}
+  .sbtn .smeta{font-size:12.5px;color:var(--ink-soft);margin-top:3px}
+  .sbtn .stag{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--ink-faint);border:1px solid var(--line);border-radius:6px;padding:3px 8px}
+
+  .divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--ink-faint);font-family:var(--mono);font-size:11px;letter-spacing:.1em}
+  .divider:before,.divider:after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* upload */
+  .uploads{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .drop{border:1.5px dashed var(--line-strong);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:.15s;background:var(--paper)}
+  .drop:hover{border-color:var(--amber-bright)}
+  .drop.ok{border-style:solid;border-color:var(--approve-bright);background:var(--approve-soft)}
+  .drop .dl{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint)}
+  .drop .dn{font-family:var(--display);font-weight:600;font-size:13.5px;margin-top:6px}
+  .drop .df{font-size:11px;color:var(--ink-soft);margin-top:5px;word-break:break-all;min-height:14px}
+  .drop input{display:none}
+  .runbtn{margin-top:16px;width:100%;padding:13px;border:none;border-radius:13px;background:var(--navy);color:#fff;font-family:var(--display);font-weight:600;font-size:14px;cursor:pointer}
+  .runbtn:disabled{background:var(--line-strong);cursor:not-allowed}
+  .hint{font-size:12px;color:var(--ink-faint);margin-top:10px;text-align:center}
+
+  /* analyzing */
+  #analyzing{display:none;text-align:center;padding:40px 0}
+  #analyzing .spin{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--amber-bright);border-radius:50%;margin:0 auto 16px;animation:sp .8s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  #analyzing .msg{font-family:var(--mono);font-size:12.5px;color:var(--ink-soft)}
+
+  /* results */
+  #results{display:none}
+  .applicant-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+  .applicant-hd .nm{font-family:var(--display);font-size:20px;font-weight:600}
+  .applicant-hd .biz{font-size:13px;color:var(--ink-soft)}
+  .stamp{font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:.06em;padding:8px 14px;border-radius:10px}
+  .stamp.approve{background:var(--approve-soft);color:var(--approve)}
+  .stamp.decline{background:var(--reject-soft);color:var(--reject)}
+
+  .metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:6px}
+  .metric{border:1px solid var(--line);border-radius:11px;padding:12px 13px;background:#fff}
+  .metric .mk{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint)}
+  .metric .mv{font-family:var(--display);font-size:18px;font-weight:600;margin-top:5px}
+  .metric .mv.good{color:var(--approve)}.metric .mv.bad{color:var(--reject)}
+  .metric .mn{font-size:11px;color:var(--ink-soft);margin-top:2px}
+
+  .barchart{display:flex;align-items:flex-end;gap:8px;height:96px;padding:6px 0;border-bottom:1px solid var(--line);margin-bottom:6px}
+  .bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end}
+  .bcol .bar{width:100%;border-radius:5px 5px 0 0;background:#C6CEDC;min-height:3px}
+  .bcol .bar.peak{background:var(--amber-bright)}
+  .bcol .bar.bad{background:var(--reject-bright);background-image:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(255,255,255,.35) 4px,rgba(255,255,255,.35) 8px)}
+  .bcol .bl{font-family:var(--mono);font-size:9px;color:var(--ink-faint)}
+  .chart-note{font-size:11.5px;color:var(--ink-soft)}
+  .chart-note .red{color:var(--reject);font-weight:600}
+
+  .scores{display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:14px;margin-top:4px}
+  .scorebox{border:1px solid var(--line);border-radius:13px;padding:16px;text-align:center}
+  .scorebox.final{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .scorebox .sk{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-faint)}
+  .scorebox.final .sk{color:#A9B2C6}
+  .scorebox .sv{font-family:var(--display);font-size:34px;font-weight:700;line-height:1;margin:8px 0 4px}
+  .scorebox .sl{font-size:11px;color:var(--ink-soft)}
+  .scorebox.final .sl{color:#C7CEDC}
+  .meter{height:7px;border-radius:5px;background:var(--line);overflow:hidden;margin-top:10px}
+  .scorebox.final .meter{background:rgba(255,255,255,.18)}
+  .meter i{display:block;height:100%;border-radius:5px;background:var(--approve-bright);transition:width .8s ease}
+  .meter i.amber{background:var(--amber-bright)} .meter i.red{background:var(--reject-bright)}
+
+  .decision{border-radius:15px;padding:22px 24px;margin-top:4px}
+  .decision.approve{background:var(--approve-soft);border:1px solid #Bfe2d0}
+  .decision.decline{background:var(--reject-soft);border:1px solid #F0CFC9}
+  .decision .dt{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+  .decision.approve .dt{color:var(--approve)} .decision.decline .dt{color:var(--reject)}
+  .decision .dmain{font-family:var(--display);font-size:26px;font-weight:700;margin:6px 0 2px}
+  .decision .dsub{font-size:13.5px;color:var(--ink-soft)}
+  .offer-terms{display:flex;gap:22px;flex-wrap:wrap;margin-top:14px}
+  .offer-terms .ot{font-size:13px}
+  .offer-terms .ot b{font-family:var(--display);font-size:18px;font-weight:600;display:block}
+  .reasons{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+  .reasons .rz{display:flex;gap:9px;font-size:13px;align-items:flex-start}
+  .reasons .rx{color:var(--reject);font-weight:700;flex-shrink:0}
+  .checked{margin-top:16px;border-top:1px dashed var(--line-strong);padding-top:13px}
+  .checked .cl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+  .checked .ci{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-soft);margin:0 14px 6px 0}
+  .checked .ci .ok{color:var(--approve);font-weight:700}
+
+  .resetbtn{margin:6px 0 0;background:none;border:1px solid var(--line-strong);border-radius:10px;padding:9px 16px;font-family:var(--display);font-weight:600;font-size:13px;cursor:pointer;color:var(--ink)}
+
+  .share{background:var(--navy);color:#E8EBF2;border-radius:16px;padding:22px 24px;margin:6px 0 50px}
+  .share h2{color:#fff;font-size:17px;margin-bottom:10px}
+  .share ol{margin:0;padding-left:20px;font-size:13.5px;line-height:1.7}
+  .share b{color:#F2C572}
+  .err{background:var(--reject-soft);border:1px solid #F0CFC9;color:var(--reject);border-radius:11px;padding:12px 15px;font-size:13px;margin-top:12px;display:none}
+
+  @media(max-width:720px){
+    .samples,.uploads,.metric-grid,.scores{grid-template-columns:1fr 1fr}
+    .scores .final{grid-column:1/-1}
+  }
+  @media(max-width:480px){.metric-grid{grid-template-columns:1fr 1fr}.uploads{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brandrow"><span class="logo">CARS<span class="l24">24</span><span class="e">/ Underwriting Engine</span></span></div>
+    <div class="eyebrow">Working Prototype</div>
+    <h1>Reads cash flow &amp; collateral. Decides in seconds.</h1>
+    <div class="sub">Drop in a self-employed borrower's bank statement, GST returns and profile — the engine reconstructs real income, scores it against the collateral, and returns a transparent decision. Try a built-in applicant, or upload your own files.</div>
+  </header>
+
+  <!-- INPUT -->
+  <div class="card" id="inputCard">
+    <h2>1 · Choose an applicant</h2>
+    <div class="ch-sub">Two ready-made self-employed applicants. The engine decides — it isn't told the outcome.</div>
+    <div class="samples">
+      <button class="sbtn" onclick="loadSample('rajesh')">
+        <div class="sname">Rajesh Patel</div>
+        <div class="smeta">Wholesale auto parts · Surat · 6 yrs · wants ₹6.5L</div>
+        <div class="stag">bank + GST + profile</div>
+      </button>
+      <button class="sbtn" onclick="loadSample('vikram')">
+        <div class="sname">Vikram Suri</div>
+        <div class="smeta">Mobile accessories · Indore · 3 yrs · wants ₹7.0L</div>
+        <div class="stag">bank + GST + profile</div>
+      </button>
+    </div>
+
+    <div class="divider">OR UPLOAD YOUR OWN</div>
+
+    <div class="uploads">
+      <label class="drop" id="drop-bank"><div class="dl">Bank statement</div><div class="dn">.csv</div><div class="df" id="fn-bank"></div><input type="file" accept=".csv" onchange="onFile(event,'bank')"></label>
+      <label class="drop" id="drop-gst"><div class="dl">GST returns</div><div class="dn">.csv</div><div class="df" id="fn-gst"></div><input type="file" accept=".csv" onchange="onFile(event,'gst')"></label>
+      <label class="drop" id="drop-profile"><div class="dl">Profile / ITR</div><div class="dn">.json</div><div class="df" id="fn-profile"></div><input type="file" accept=".json" onchange="onFile(event,'profile')"></label>
+    </div>
+    <button class="runbtn" id="runbtn" disabled onclick="runUploaded()">Run underwriting</button>
+    <div class="hint">Files stay on your device — nothing is uploaded to any server.</div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <!-- ANALYZING -->
+  <div class="card" id="analyzing"><div class="spin"></div><div class="msg" id="anmsg">Reading 6 months of bank activity…</div></div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="card">
+      <div class="applicant-hd">
+        <div><div class="nm" id="r-name"></div><div class="biz" id="r-biz"></div></div>
+        <div class="stamp" id="r-stamp"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Reading the cash flow</h2>
+      <div class="ch-sub">Real income reconstructed from the statement — inflated or circular credits are stripped out.</div>
+      <div class="barchart" id="r-chart"></div>
+      <div class="chart-note" id="r-chartnote"></div>
+      <div class="metric-grid" style="margin-top:16px">
+        <div class="metric"><div class="mk">Real income / mo</div><div class="mv" id="m-income"></div><div class="mn">excl. inflated</div></div>
+        <div class="metric"><div class="mk">FOIR</div><div class="mv" id="m-foir"></div><div class="mn" id="m-foir-n"></div></div>
+        <div class="metric"><div class="mk">Volatility</div><div class="mv" id="m-cv"></div><div class="mn" id="m-trend"></div></div>
+        <div class="metric"><div class="mk">Conduct</div><div class="mv" id="m-conduct"></div><div class="mn" id="m-conduct-n"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>The collateral</h2>
+      <div class="ch-sub">First-party valuation — the asset Loans24 already knows.</div>
+      <div class="metric-grid">
+        <div class="metric"><div class="mk">Vehicle</div><div class="mv" id="c-car" style="font-size:14px"></div><div class="mn" id="c-cond"></div></div>
+        <div class="metric"><div class="mk">Value</div><div class="mv" id="c-val"></div><div class="mn">live market</div></div>
+        <div class="metric"><div class="mk">LTV</div><div class="mv" id="c-ltv"></div><div class="mn" id="c-ltv-n"></div></div>
+        <div class="metric"><div class="mk">Liquidity</div><div class="mv" id="c-liq"></div><div class="mn">to resell</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>The score</h2>
+      <div class="ch-sub">Composite = 60% cash-flow × 40% collateral.</div>
+      <div class="scores">
+        <div class="scorebox"><div class="sk">Cash-flow</div><div class="sv" id="s-cf"></div><div class="sl">of 100</div><div class="meter"><i id="bar-cf"></i></div></div>
+        <div class="scorebox"><div class="sk">Collateral</div><div class="sv" id="s-col"></div><div class="sl">of 100</div><div class="meter"><i id="bar-col"></i></div></div>
+        <div class="scorebox final"><div class="sk">Composite</div><div class="sv" id="s-comp"></div><div class="sl">decision driver</div><div class="meter"><i id="bar-comp"></i></div></div>
+      </div>
+    </div>
+
+    <div class="decision" id="r-decision"></div>
+
+    <button class="resetbtn" onclick="reset()">← Run another applicant</button>
+  </div>
+
+  <!-- SHARE -->
+  <div class="share">
+    <h2>How to share &amp; use this</h2>
+    <ol>
+      <li>It's a <b>single HTML file</b> — double-click to open in any browser. No install, no internet, no login.</li>
+      <li>To let someone try it, just <b>send them this file</b>. The two sample applicants are built in.</li>
+      <li>To test uploads, share the <b>sample-files</b> folder too — they can upload one applicant's three files and run it.</li>
+      <li>To put it online, drop the file on any static host (e.g. <b>Netlify Drop, GitHub Pages</b>) and share the link.</li>
+    </ol>
+  </div>
+
+</div>
+
+<script>
+/* ============ EMBEDDED SAMPLE DATA ============ */
+const SAMPLES = {
+  rajesh: { bank: "Date,Description,Debit,Credit,Balance\n2024-09-02,NACH/HDB AUTO EMI,6000,,54000\n2024-09-04,UPI/CR/AUTOPARTS SALE,,58000,112000\n2024-09-11,UPI/DR/SUPPLIER,22000,,90000\n2024-09-19,NEFT CR/CUSTOMER TRADE,,47000,137000\n2024-09-24,DR/SHOP RENT,18000,,119000\n2024-10-02,NACH/HDB AUTO EMI,6000,,113000\n2024-10-06,UPI/CR/AUTOPARTS SALE,,52000,165000\n2024-10-13,UPI/DR/SUPPLIER,20000,,145000\n2024-10-21,NEFT CR/CUSTOMER TRADE,,46000,191000\n2024-10-25,DR/SHOP RENT,18000,,173000\n2024-11-02,NACH/HDB AUTO EMI,6000,,167000\n2024-11-05,UPI/CR/AUTOPARTS SALE,,66000,233000\n2024-11-12,UPI/DR/SUPPLIER,28000,,205000\n2024-11-20,NEFT CR/CUSTOMER TRADE,,54000,259000\n2024-11-26,DR/SHOP RENT,18000,,241000\n2024-12-02,NACH/HDB AUTO EMI,6000,,235000\n2024-12-07,UPI/CR/AUTOPARTS SALE,,92000,327000\n2024-12-14,UPI/DR/SUPPLIER,40000,,287000\n2024-12-22,NEFT CR/CUSTOMER TRADE,,68000,355000\n2024-12-27,DR/SHOP RENT,18000,,337000\n2025-01-02,NACH/HDB AUTO EMI,6000,,331000\n2025-01-06,UPI/CR/AUTOPARTS SALE,,85000,416000\n2025-01-13,UPI/DR/SUPPLIER,36000,,380000\n2025-01-21,NEFT CR/CUSTOMER TRADE,,65000,445000\n2025-01-25,DR/SHOP RENT,18000,,427000\n2025-02-02,NACH/HDB AUTO EMI,6000,,421000\n2025-02-05,UPI/CR/AUTOPARTS SALE,,72000,493000\n2025-02-12,UPI/DR/SUPPLIER,30000,,463000\n2025-02-20,NEFT CR/CUSTOMER TRADE,,58000,521000\n2025-02-26,DR/SHOP RENT,18000,,503000\n", gst: "Month,Taxable_Turnover\n2024-09,360000\n2024-10,350000\n2024-11,395000\n2024-12,440000\n2025-01,420000\n2025-02,390000\n", profile: "{\n  \"applicant\": {\n    \"name\": \"Rajesh Patel\",\n    \"type\": \"Self-employed\",\n    \"business\": \"Wholesale auto parts\",\n    \"city\": \"Surat\",\n    \"vintage_years\": 6\n  },\n  \"itr\": {\n    \"assessment_year\": \"2024-25\",\n    \"net_taxable_income\": 900000,\n    \"filed_months_ago\": 11\n  },\n  \"bureau\": {\n    \"score\": 690,\n    \"active_loans\": 1\n  },\n  \"loan_request\": {\n    \"amount\": 650000,\n    \"tenure_months\": 72\n  },\n  \"collateral\": {\n    \"car\": \"2021 Hyundai Creta SX\",\n    \"onroad_value\": 690000,\n    \"condition_score\": 8.7,\n    \"resale_days\": 9\n  }\n}" },
+  vikram: { bank: "Date,Description,Debit,Credit,Balance\n2024-09-02,NACH/BAJAJ FIN EMI,14000,,14000\n2024-09-03,NACH/HDFC PL EMI,13000,,1000\n2024-09-04,ACH/FULLERTON EMI,9000,,-8000\n2024-09-05,UPI/CR/SHOP SALE,,38000,30000\n2024-09-18,CASH DEP,,22000,52000\n2024-09-20,DR/SUPPLIER,15000,,37000\n2024-10-02,NACH/BAJAJ FIN EMI,14000,,23000\n2024-10-03,NACH/HDFC PL EMI,13000,,10000\n2024-10-04,ACH/FULLERTON EMI,9000,,1000\n2024-10-07,UPI/CR/SHOP SALE,,30000,31000\n2024-10-12,NEFT CR/UNKNOWN PARTY,,200000,231000\n2024-10-13,NEFT DR/UNKNOWN PARTY,192000,,39000\n2024-10-22,ECS RETURN CHARGES,590,,38410\n2024-10-28,CASH DEP,,18000,56410\n2024-11-02,NACH/BAJAJ FIN EMI,14000,,42410\n2024-11-03,NACH/HDFC PL EMI,13000,,29410\n2024-11-04,ACH/FULLERTON EMI,9000,,20410\n2024-11-06,UPI/CR/SHOP SALE,,27000,47410\n2024-11-15,CHQ RETURN-INSUFFICIENT FUNDS,,,47410\n2024-11-19,CASH DEP,,16000,63410\n2024-12-02,NACH/BAJAJ FIN EMI,14000,,49410\n2024-12-03,NACH/HDFC PL EMI,13000,,36410\n2024-12-04,ACH/FULLERTON EMI,9000,,27410\n2024-12-08,UPI/CR/SHOP SALE,,24000,51410\n2024-12-14,NEFT CR/UNKNOWN PARTY,,210000,261410\n2024-12-15,NEFT DR/UNKNOWN PARTY,201000,,60410\n2024-12-23,ECS RETURN CHARGES,590,,59820\n2024-12-26,CASH DEP,,14000,73820\n2025-01-02,NACH/BAJAJ FIN EMI,14000,,59820\n2025-01-03,NACH/HDFC PL EMI,13000,,46820\n2025-01-04,ACH/FULLERTON EMI,9000,,37820\n2025-01-06,UPI/CR/SHOP SALE,,33000,70820\n2025-01-18,DR/SUPPLIER,12000,,58820\n2025-01-20,CASH DEP,,19000,77820\n2025-02-02,NACH/BAJAJ FIN EMI,14000,,63820\n2025-02-03,NACH/HDFC PL EMI,13000,,50820\n2025-02-04,ACH/FULLERTON EMI,9000,,41820\n2025-02-07,UPI/CR/SHOP SALE,,26000,67820\n2025-02-19,DR/SUPPLIER,10000,,57820\n2025-02-21,CASH DEP,,15000,72820\n", gst: "Month,Taxable_Turnover\n2024-09,70000\n2024-10,62000\n2024-11,58000\n2024-12,55000\n2025-01,66000\n2025-02,60000\n", profile: "{\n  \"applicant\": {\n    \"name\": \"Vikram Suri\",\n    \"type\": \"Self-employed\",\n    \"business\": \"Mobile accessories retail\",\n    \"city\": \"Indore\",\n    \"vintage_years\": 3\n  },\n  \"itr\": {\n    \"assessment_year\": \"2024-25\",\n    \"net_taxable_income\": 300000,\n    \"filed_months_ago\": 13\n  },\n  \"bureau\": {\n    \"score\": 610,\n    \"active_loans\": 3\n  },\n  \"loan_request\": {\n    \"amount\": 700000,\n    \"tenure_months\": 60\n  },\n  \"collateral\": {\n    \"car\": \"2018 Mahindra XUV500\",\n    \"onroad_value\": 620000,\n    \"condition_score\": 6.4,\n    \"resale_days\": 24\n  }\n}" }
+};
+
+/* ============ ENGINE (mirrors validated Python) ============ */
+function clamp(x,a=0,b=100){return Math.max(a,Math.min(b,x));}
+function parseBank(text){
+  const lines=text.trim().split(/\r?\n/); const out=[];
+  for(let i=1;i<lines.length;i++){
+    const c=lines[i].split(','); if(c.length<5) continue;
+    out.push({date:c[0].trim(),desc:(c[1]||'').toUpperCase(),debit:parseFloat(c[2])||0,credit:parseFloat(c[3])||0,bal:parseFloat(c[4])||0,month:c[0].trim().slice(0,7)});
+  } return out;
+}
+function parseGST(text){
+  const lines=text.trim().split(/\r?\n/); const out=[];
+  for(let i=1;i<lines.length;i++){const c=lines[i].split(','); if(c.length<2) continue; out.push(parseFloat(c[1])||0);} return out;
+}
+const EMI_RE=/EMI|NACH|ACH|MANDATE|LOAN/;
+const RETURN_RE=/RETURN|BOUNCE|INSUFFICIENT|REVERSAL|DISHONOU?R/;
+function dDays(a,b){return Math.abs((new Date(a)-new Date(b))/86400000);}
+
+function analyze(bankText,gstText,profile){
+  const txns=parseBank(bankText); const gst=parseGST(gstText);
+  txns.forEach((t,i)=>t._i=i);
+  const bounces=txns.filter(t=>RETURN_RE.test(t.desc)).length;
+  const bigCr=txns.filter(t=>t.credit>=100000); const bigDr=txns.filter(t=>t.debit>=50000);
+  const inflated=new Set();
+  for(const c of bigCr){ for(const db of bigDr){ if(dDays(db.date,c.date)<=2 && db.debit>=0.85*c.credit){inflated.add(c._i);break;} } }
+  const inflated_count=inflated.size;
+  const monthly={};
+  for(const t of txns){ if(t.credit>0 && !inflated.has(t._i)) monthly[t.month]=(monthly[t.month]||0)+t.credit; }
+  const keys=Object.keys(monthly).sort(); const inc=keys.map(k=>monthly[k]);
+  const avg_inc=inc.reduce((a,b)=>a+b,0)/inc.length;
+  const varr=inc.reduce((a,b)=>a+(b-avg_inc)**2,0)/inc.length; const cv=Math.sqrt(varr)/avg_inc;
+  const f3=(inc[0]+inc[1]+inc[2])/3, l3=(inc[inc.length-1]+inc[inc.length-2]+inc[inc.length-3])/3;
+  const trend=f3?(l3-f3)/f3:0;
+  const emi_total=txns.filter(t=>EMI_RE.test(t.desc)&&t.debit>0).reduce((a,b)=>a+b.debit,0);
+  const existing_emi=emi_total/inc.length;
+  const avg_bal=txns.reduce((a,b)=>a+b.bal,0)/txns.length;
+  const avg_gst=gst.reduce((a,b)=>a+b,0)/gst.length; const ratio=avg_gst?avg_inc/avg_gst:0;
+  const loan=profile.loan_request.amount, ten=profile.loan_request.tenure_months;
+  const r=12.5/12/100; const prop_emi=loan*r/(1-Math.pow(1+r,-ten));
+  const foir=(prop_emi+existing_emi)/avg_inc;
+  const onroad=profile.collateral.onroad_value, ltv=loan/onroad;
+  const cond=profile.collateral.condition_score, resale=profile.collateral.resale_days, bureau=profile.bureau.score;
+  const foir_s=clamp(100-(foir-0.30)*250), stab_s=clamp(100-cv*160), trend_s=clamp(50+trend*200);
+  const conduct_s=clamp(100-bounces*25-inflated_count*30);
+  const ratio_pen=(ratio>=0.08&&ratio<=0.9)?0:40;
+  const consist_s=clamp(100-inflated_count*35-ratio_pen);
+  const cashflow=0.35*foir_s+0.25*stab_s+0.15*trend_s+0.15*conduct_s+0.10*consist_s;
+  const ltv_s=clamp(100-(ltv-0.70)*200), cond_s=clamp(cond*10), liq_s=clamp(100-resale*4);
+  const collateral=0.5*ltv_s+0.3*cond_s+0.2*liq_s;
+  const composite=0.6*cashflow+0.4*collateral;
+  const knockouts=[];
+  if(bureau<620) knockouts.push("Credit bureau score "+bureau+" is below the 620 floor");
+  if(foir>0.55) knockouts.push("FOIR "+Math.round(foir*100)+"% exceeds the 55% ceiling (over-leveraged)");
+  if(bounces>=3) knockouts.push(bounces+" payment bounces / dishonours in 6 months");
+  if(inflated_count>=2) knockouts.push(inflated_count+" suspected income-inflation (circular) transactions");
+  if(ltv>1.10) knockouts.push("LTV "+Math.round(ltv*100)+"% exceeds the 110% ceiling");
+  let decision,reason;
+  if(knockouts.length){decision="DECLINE";reason="High credit risk";}
+  else if(composite>=68){decision="APPROVE";reason="Strong composite profile";}
+  else if(composite>=55){decision="APPROVE_CONDITIONS";reason="Approve with conditions";}
+  else {decision="DECLINE";reason="Insufficient composite score";}
+  const rate=clamp(12.2+(82-composite)*0.12,11.0,16.5);
+  const rr=rate/12/100; const final_emi=loan*rr/(1-Math.pow(1+rr,-ten));
+  return {profile,inc,keys,monthly,inflated:[...inflated],avg_inc,cv,trend,existing_emi,prop_emi,foir,avg_bal,
+    bounces,inflated_count,avg_gst,ratio,ltv,onroad,cond,resale,bureau,loan,ten,
+    foir_s,stab_s,trend_s,conduct_s,consist_s,ltv_s,cond_s,liq_s,cashflow,collateral,composite,
+    decision,reason,knockouts,rate,final_emi};
+}
+
+/* ============ UPLOAD STATE ============ */
+const uploaded={bank:null,gst:null,profile:null};
+function onFile(e,kind){
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{ uploaded[kind]=rd.result; document.getElementById('fn-'+kind).textContent=f.name; document.getElementById('drop-'+kind).classList.add('ok'); checkReady(); };
+  rd.readAsText(f);
+}
+function checkReady(){ document.getElementById('runbtn').disabled=!(uploaded.bank&&uploaded.gst&&uploaded.profile); }
+function runUploaded(){
+  document.getElementById('err').style.display='none';
+  try{
+    const profile=JSON.parse(uploaded.profile);
+    const res=analyze(uploaded.bank,uploaded.gst,profile);
+    showAnalyzing(res);
+  }catch(err){ const e=document.getElementById('err'); e.style.display='block'; e.textContent="Couldn't read those files. Check the formats: bank/GST as CSV, profile as JSON. ("+err.message+")"; }
+}
+function loadSample(key){
+  const s=SAMPLES[key];
+  const res=analyze(s.bank,s.gst,JSON.parse(s.profile));
+  showAnalyzing(res);
+}
+
+/* ============ RENDER ============ */
+function fmtINR(n){ if(n>=1e7) return "₹"+(n/1e7).toFixed(2)+"Cr"; if(n>=1e5) return "₹"+(n/1e5).toFixed(2)+"L"; return "₹"+Math.round(n).toLocaleString('en-IN'); }
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function showAnalyzing(res){
+  document.getElementById('inputCard').style.display='none';
+  document.getElementById('results').style.display='none';
+  const an=document.getElementById('analyzing'); an.style.display='block';
+  const msgs=["Reading 6 months of bank activity…","Separating business from personal flows…","Checking for inflated / circular credits…","Valuing the collateral…","Scoring cash-flow × collateral…"];
+  let i=0; const el=document.getElementById('anmsg'); el.textContent=msgs[0];
+  const iv=setInterval(()=>{i++; if(i<msgs.length) el.textContent=msgs[i];},420);
+  setTimeout(()=>{ clearInterval(iv); an.style.display='none'; render(res); },2100);
+}
+
+function render(res){
+  const p=res.profile;
+  document.getElementById('r-name').textContent=p.applicant.name;
+  document.getElementById('r-biz').textContent=p.applicant.type+" · "+p.applicant.business+" · "+p.applicant.city;
+  const approve=res.decision.startsWith("APPROVE");
+  const stamp=document.getElementById('r-stamp');
+  stamp.className="stamp "+(approve?"approve":"decline");
+  stamp.textContent=approve?"✓ APPROVED":"✕ DECLINED";
+
+  // chart
+  const chart=document.getElementById('r-chart'); chart.innerHTML='';
+  const monthsAll={}; // include inflated for visual
+  const txns=parseBank(res.profile._dummy||"")||[];
+  // rebuild full monthly (incl inflated) for chart from res
+  const maxv=Math.max(...res.inc, ...Object.values(res.monthly), 1);
+  // We chart legit monthly income; mark a bad bar if that month had an inflated credit
+  const infMonths=new Set(); // approximate: months where inflated existed -> recompute
+  res.keys.forEach((k,idx)=>{
+    const v=res.monthly[k];
+    const col=document.createElement('div'); col.className='bcol';
+    const h=Math.max(4,(v/maxv)*100);
+    const bar=document.createElement('div'); bar.className='bar'+(v===Math.max(...res.inc)?' peak':'');
+    bar.style.height=h+'%';
+    const lbl=document.createElement('div'); lbl.className='bl'; lbl.textContent=MON[parseInt(k.slice(5,7))-1];
+    col.appendChild(bar); col.appendChild(lbl); chart.appendChild(col);
+  });
+  document.getElementById('r-chartnote').innerHTML = res.inflated_count>0
+    ? `Detected <span class="red">${res.inflated_count} circular credit(s)</span> (large money in, near-equal money out within 2 days) — stripped from income as suspected inflation.`
+    : `Clean inflow pattern — no circular or inflated credits detected.`;
+
+  // cash-flow metrics
+  setMV('m-income',fmtINR(res.avg_inc),'good');
+  setMV('m-foir',Math.round(res.foir*100)+'%',res.foir>0.5?'bad':'good');
+  document.getElementById('m-foir-n').textContent="EMI ÷ income";
+  setMV('m-cv',(res.cv<0.25?'Low':res.cv<0.45?'Med':'High'),res.cv<0.45?'good':'bad');
+  document.getElementById('m-trend').textContent=(res.trend>=0?'Trend +':'Trend ')+Math.round(res.trend*100)+'%';
+  const conductBad=res.bounces>0||res.inflated_count>0;
+  setMV('m-conduct',conductBad?'Flagged':'Clean',conductBad?'bad':'good');
+  document.getElementById('m-conduct-n').textContent=res.bounces+" bounce(s) · "+res.inflated_count+" inflated";
+
+  // collateral
+  document.getElementById('c-car').textContent=p.collateral.car;
+  document.getElementById('c-cond').textContent="condition "+p.collateral.condition_score+"/10";
+  document.getElementById('c-val').textContent=fmtINR(res.onroad);
+  setMV('c-ltv',Math.round(res.ltv*100)+'%',res.ltv>1.05?'bad':'good');
+  document.getElementById('c-ltv-n').textContent="loan ÷ value";
+  document.getElementById('c-liq').textContent='~'+res.resale+'d';
+
+  // scores
+  document.getElementById('s-cf').textContent=Math.round(res.cashflow);
+  document.getElementById('s-col').textContent=Math.round(res.collateral);
+  document.getElementById('s-comp').textContent=Math.round(res.composite);
+  setTimeout(()=>{
+    barFill('bar-cf',res.cashflow); barFill('bar-col',res.collateral);
+    const c=document.getElementById('bar-comp'); c.style.width=res.composite+'%';
+    c.className=res.composite>=68?'':res.composite>=55?'amber':'red';
+  },60);
+
+  // decision block
+  const d=document.getElementById('r-decision');
+  if(approve){
+    d.className="decision approve";
+    d.innerHTML=`<div class="dt">Sanctioned · ${res.reason}</div>
+      <div class="dmain">${fmtINR(res.loan)} approved</div>
+      <div class="dsub">Risk-based price, computed from this borrower's actual profile.</div>
+      <div class="offer-terms">
+        <div class="ot">Rate<b>${res.rate.toFixed(1)}%</b></div>
+        <div class="ot">Tenure<b>${res.ten} mo</b></div>
+        <div class="ot">EMI<b>${fmtINR(res.final_emi)}</b></div>
+        <div class="ot">Composite<b>${Math.round(res.composite)}/100</b></div>
+      </div>${checkedList(res)}`;
+  } else {
+    d.className="decision decline";
+    d.innerHTML=`<div class="dt">Not sanctioned · ${res.reason}</div>
+      <div class="dmain">Declined</div>
+      <div class="dsub">The engine found risk signals that breach policy. Reasons:</div>
+      <div class="reasons">${res.knockouts.map(k=>`<div class="rz"><span class="rx">✕</span><span>${k}</span></div>`).join('')}</div>
+      ${checkedList(res)}`;
+  }
+
+  document.getElementById('results').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function checkedList(res){
+  return `<div class="checked"><div class="cl">What the engine checked</div>
+    <span class="ci"><span class="ok">✓</span> Real income (AA bank data)</span>
+    <span class="ci"><span class="ok">✓</span> Income volatility &amp; trend</span>
+    <span class="ci"><span class="ok">✓</span> FOIR vs existing EMIs</span>
+    <span class="ci"><span class="ok">✓</span> Bounce / dishonour history</span>
+    <span class="ci"><span class="ok">✓</span> Income-inflation (circular) flags</span>
+    <span class="ci"><span class="ok">✓</span> Bank ↔ GST consistency</span>
+    <span class="ci"><span class="ok">✓</span> Live collateral value &amp; LTV</span></div>`;
+}
+function setMV(id,val,cls){ const el=document.getElementById(id); el.textContent=val; el.className='mv'+(cls?' '+cls:''); }
+function barFill(id,v){ const el=document.getElementById(id); el.style.width=clamp(v)+'%'; el.className=v>=68?'':v>=50?'amber':'red'; }
+
+function reset(){
+  document.getElementById('results').style.display='none';
+  document.getElementById('inputCard').style.display='block';
+  ['bank','gst','profile'].forEach(k=>{uploaded[k]=null;document.getElementById('fn-'+k).textContent='';document.getElementById('drop-'+k).classList.remove('ok');});
+  checkReady(); window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

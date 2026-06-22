@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loans24 · Self-Employed Underwriting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4F6F8;--card:#FFFFFF;--ink:#15181F;--ink-soft:#5A6172;--ink-faint:#8A92A0;
+    --line:#E4E7EC;--line-strong:#CDD3DB;
+    --amber:#C9810A;--amber-bright:#E89A12;--amber-soft:#FAEFD8;
+    --approve:#187A52;--approve-soft:#E4F2EB;--approve-bright:#1E9A66;
+    --reject:#B23A2C;--reject-soft:#FBEAE7;
+    --navy:#1F2A44;--navy-soft:#EAEDF4;
+    --display:'Space Grotesk',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+    --maxw:920px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--amber)}
+  h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.12;letter-spacing:-.01em;margin:0}
+  p{margin:0 0 14px}
+  a{color:var(--amber);text-decoration:none}
+  em{font-style:italic}
+
+  .hero{padding:62px 0 38px;border-bottom:1px solid var(--line)}
+  .hero h1{font-size:clamp(32px,5.6vw,52px);font-weight:700;margin:18px 0 16px;max-width:17ch}
+  .hero .sub{font-size:clamp(16px,2.4vw,19px);color:var(--ink-soft);max-width:54ch;font-weight:500}
+  .scope-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+  .token{font-family:var(--mono);font-size:12px;font-weight:500;background:var(--card);border:1px solid var(--line-strong);border-radius:7px;padding:8px 12px;display:inline-flex;align-items:center;gap:7px}
+  .token b{color:var(--ink);font-weight:600}.token span{color:var(--ink-faint)}
+  .token .dot{width:6px;height:6px;border-radius:50%;background:var(--amber)}
+  .meta{margin-top:24px;font-family:var(--mono);font-size:12px;color:var(--ink-faint);letter-spacing:.04em}
+
+  section{padding:52px 0;border-bottom:1px solid var(--line)}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:24px}
+  .sec-num{font-family:var(--mono);font-size:13px;color:var(--amber);font-weight:600}
+  .sec-head h2{font-size:clamp(24px,3.6vw,32px)}
+  .lead{font-size:17px;color:var(--ink-soft);max-width:64ch}
+
+  /* fact grid */
+  .l24-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+  .fact{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .fact .k{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:7px}
+  .fact .v{font-size:15px;font-weight:500;line-height:1.45}.fact .v b{font-weight:600}
+  .pill-edge{margin-top:16px;background:var(--navy);color:#fff;border-radius:12px;padding:18px 22px;display:flex;gap:14px;align-items:flex-start}
+  .pill-edge .tag{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:#F2C572;text-transform:uppercase;white-space:nowrap;padding-top:2px}
+  .pill-edge p{margin:0;font-size:15px;color:#E8EBF2;line-height:1.5}.pill-edge b{color:#fff}
+
+  /* the lacuna / two-lever */
+  .ratebar{display:flex;gap:0;margin:4px 0 22px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+  .ratebar .seg{flex:1;padding:16px 18px;background:var(--card)}
+  .ratebar .seg+.seg{border-left:1px solid var(--line)}
+  .ratebar .seg .who{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint)}
+  .ratebar .seg .rt{font-family:var(--display);font-size:24px;font-weight:700;margin-top:6px}
+  .ratebar .seg.bank .rt{color:var(--approve)} .ratebar .seg.nbfc .rt{color:var(--reject)}
+  .ratebar .seg .nt{font-size:12px;color:var(--ink-soft);margin-top:3px}
+  .quote{border-left:3px solid var(--amber);padding:6px 0 6px 16px;font-size:18px;font-style:italic;color:var(--ink);margin:0 0 22px;font-family:var(--display);font-weight:500}
+
+  .lever-flow{margin-top:8px}
+  .lf-top{background:var(--navy);color:#fff;border-radius:13px;padding:16px 20px;text-align:center}
+  .lf-top .lt{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#F2C572}
+  .lf-top .lm{font-family:var(--display);font-size:18px;font-weight:600;margin-top:4px}
+  .lf-split{display:flex;justify-content:center;gap:120px;padding:6px 0 2px}
+  .lf-split svg{display:block}
+  .levers{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .lever{background:var(--approve-soft);border:1px solid #C6E3D4;border-radius:13px;padding:18px 20px}
+  .lever .ln{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--approve);font-weight:600}
+  .lever h3{font-size:18px;margin:6px 0 5px}
+  .lever p{font-size:14px;margin:0;color:var(--ink)}
+  .contrast-note{margin-top:16px;font-size:14px;color:var(--ink-soft);background:var(--reject-soft);border:1px solid #F0CFC9;border-radius:11px;padding:13px 16px}
+  .contrast-note b{color:var(--reject);font-weight:600}
+
+  /* channel fork */
+  .fork{margin-top:8px}
+  .fork-top{display:flex;justify-content:center}
+  .fork-node{background:var(--navy);color:#fff;border-radius:12px;padding:13px 22px;font-family:var(--display);font-weight:600;font-size:15px;text-align:center}
+  .fork-arrows{display:flex;justify-content:center;padding:4px 0}
+  .fork-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .chan{border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--card)}
+  .chan .ch-h{padding:15px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .chan.pick .ch-h{background:var(--approve-soft)}
+  .chan.skip .ch-h{background:var(--paper)}
+  .chan .ch-h .cn{font-family:var(--display);font-weight:600;font-size:15px}
+  .chan.pick .ch-h .cn{color:var(--approve)}
+  .chan.skip .ch-h .cn{color:var(--ink-faint)}
+  .pickbadge{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:20px}
+  .pickbadge.y{background:var(--approve);color:#fff}.pickbadge.n{background:var(--line);color:var(--ink-faint)}
+  .chan .ch-b{padding:6px 18px 16px}
+  .chan .row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.4px}
+  .chan .row:last-child{border-bottom:none}
+  .chan .row .rk{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);min-width:62px;flex-shrink:0;padding-top:2px}
+  .chan .row .rv{line-height:1.45}.chan .row .rv b{font-weight:600}
+  .why-b2c{margin-top:16px}
+  .why-b2c .wt{font-family:var(--display);font-size:16px;margin-bottom:12px}
+  .reasongrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .reason{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .reason .rn{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:5px}
+  .reason p{margin:0;font-size:13.6px;line-height:1.5}.reason p b{font-weight:600}
+
+  /* scope matrix */
+  .matrix-wrap{overflow-x:auto;margin:4px 0 16px;border:1px solid var(--line);border-radius:12px}
+  .matrix{border-collapse:collapse;width:100%;min-width:660px;background:var(--card);font-size:13.4px}
+  .matrix th,.matrix td{padding:13px 15px;text-align:left;border-bottom:1px solid var(--line);border-right:1px solid var(--line);vertical-align:top}
+  .matrix th:last-child,.matrix td:last-child{border-right:none}
+  .matrix thead th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);background:var(--paper);font-weight:600}
+  .matrix tbody tr:last-child td{border-bottom:none}
+  .matrix .stage{font-family:var(--display);font-weight:600;font-size:13.5px;background:var(--paper);white-space:nowrap}
+  .matrix .cellt{font-size:12.8px;color:var(--ink-soft);line-height:1.4}
+  .matrix .sel{background:var(--approve-soft)} .matrix .sel .cellt{color:var(--ink);font-weight:500}
+  .sel-badge{display:inline-block;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.06em;background:var(--approve);color:#fff;padding:3px 7px;border-radius:5px;text-transform:uppercase;margin-bottom:6px}
+  .verdict-core{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--approve);letter-spacing:.04em}
+  .verdict-cosmetic{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--reject);letter-spacing:.04em}
+  .vsub{display:block;font-size:12px;color:var(--ink-soft);margin-top:5px;line-height:1.4}
+  .matrix-note{font-size:13.5px;color:var(--ink-soft);margin:0 0 26px;padding-left:14px;border-left:2px solid var(--amber)}.matrix-note b{color:var(--ink);font-weight:600}
+
+  .choice{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:14px}
+  .choice .top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .choice .axis{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+  .choice .pick{font-family:var(--display);font-size:19px;font-weight:600}
+  .chosen-badge{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.08em;background:var(--approve-soft);color:var(--approve);padding:4px 9px;border-radius:20px;text-transform:uppercase}
+  .role-badge{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.08em;background:var(--amber-soft);color:var(--amber);padding:4px 9px;border-radius:20px;text-transform:uppercase}
+  .choice p{font-size:15px;margin:0 0 10px}
+  .rejected{font-family:var(--mono);font-size:12.5px;color:var(--ink-faint);border-top:1px dashed var(--line-strong);padding-top:11px}.rejected b{color:var(--reject);font-weight:500}
+
+  /* persona */
+  .persona{display:grid;grid-template-columns:1.05fr 1fr;gap:20px;align-items:start}
+  .pcard{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .pcard .hd{background:var(--navy);color:#fff;padding:20px 22px}
+  .pcard .hd .nm{font-family:var(--display);font-size:22px;font-weight:600}
+  .pcard .hd .role{font-size:13.5px;color:#C7CEDC;margin-top:3px}
+  .pcard .body{padding:6px 22px 18px}
+  .prow{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .prow:last-child{border-bottom:none}
+  .prow .k{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint)}
+  .prow .vv{font-size:14px;font-weight:600;text-align:right}
+  .why h3{font-size:16px;margin-bottom:14px;font-family:var(--display)}
+  .friction-item{display:flex;gap:12px;margin-bottom:13px}
+  .fnum{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--reject);background:var(--reject-soft);border-radius:6px;min-width:26px;height:26px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .friction-item p{margin:0;font-size:14.5px;line-height:1.5}.friction-item b{font-weight:600}
+  .verdict{margin-top:8px;background:var(--reject-soft);border:1px solid #F0CFC9;border-radius:10px;padding:14px 16px;font-size:14px}
+  .verdict .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--reject);font-weight:600;display:block;margin-bottom:4px}
+
+  /* journey */
+  .jcols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+  .jcol{border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+  .jcol .jh{padding:15px 18px;font-family:var(--display);font-weight:600;font-size:15.5px;display:flex;align-items:center;justify-content:space-between}
+  .jcol.bank .jh{background:var(--reject-soft);color:var(--reject)}
+  .jcol.ai .jh{background:var(--approve-soft);color:var(--approve)}
+  .jh .tg{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:500;opacity:.8}
+  .jbody{background:var(--card);padding:6px 0}
+  .jstep{display:flex;gap:12px;padding:11px 18px;align-items:flex-start}
+  .jstep .si{font-family:var(--mono);font-size:11px;color:var(--ink-faint);min-width:18px;padding-top:2px}
+  .jstep .st{font-size:13.8px;line-height:1.45}.jstep .st b{font-weight:600}
+  .jcol.ai .jstep .si{color:var(--approve)}
+  .joutcome{padding:13px 18px;font-size:13.5px;font-weight:600;border-top:1px solid var(--line)}
+  .jcol.bank .joutcome{color:var(--reject)}.jcol.ai .joutcome{color:var(--approve)}
+
+  .tablewrap{overflow-x:auto;margin-top:24px;border:1px solid var(--line);border-radius:12px}
+  table.fric{border-collapse:collapse;width:100%;min-width:660px;background:var(--card);font-size:13.4px}
+  table.fric th,table.fric td{text-align:left;padding:12px 15px;vertical-align:top;border-bottom:1px solid var(--line)}
+  table.fric thead th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);background:var(--paper);font-weight:600}
+  table.fric tbody tr:last-child td{border-bottom:none}
+  td.fr{font-weight:600;color:var(--reject)}
+  td.fx b{color:var(--approve);font-weight:600}
+  .lvtag{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.04em;padding:3px 7px;border-radius:5px;white-space:nowrap}
+  .lvtag.share{background:var(--navy-soft);color:var(--navy)}
+  .lvtag.rate{background:var(--amber-soft);color:var(--amber)}
+
+  /* solution + formula */
+  .pillar{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:14px;display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start}
+  .pillar .idx{font-family:var(--display);font-size:30px;font-weight:700;color:var(--amber);line-height:1}
+  .pillar h3{font-size:18px;margin-bottom:4px}
+  .pillar .role-l{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:9px}
+  .pillar p{font-size:14.5px;margin:0}.pillar p b{font-weight:600}
+
+  .formula{background:var(--navy);color:#fff;border-radius:16px;padding:24px 26px;margin-top:22px}
+  .formula .ft{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#F2C572;margin-bottom:12px}
+  .formula .eq{font-family:var(--mono);font-size:clamp(14px,2.4vw,17px);font-weight:500;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:16px 18px;line-height:1.7;color:#fff}
+  .formula .eq b{color:#F2C572}
+  .vardef{display:grid;grid-template-columns:1fr 1fr;gap:8px 22px;margin-top:16px}
+  .vardef .vd{font-size:13px;color:#D7DCE6;line-height:1.45}
+  .vardef .vd b{font-family:var(--mono);color:#fff;font-weight:600}
+  .formula .punch{margin-top:16px;font-size:14.5px;color:#fff;line-height:1.5}
+  .formula .punch b{color:#F2C572}
+
+  .worked{margin-top:18px;border:1px solid var(--line-strong);border-radius:14px;overflow:hidden}
+  .worked .wh{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);padding:13px 20px;background:var(--paper);border-bottom:1px solid var(--line)}
+  .wsteps{padding:6px 20px 16px}
+  .wstep{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px dashed var(--line);font-size:13.8px}
+  .wstep:last-child{border-bottom:none}
+  .wstep .wl{color:var(--ink-soft)}
+  .wstep .wv{font-family:var(--display);font-weight:600;text-align:right}
+  .wstep.tot .wv{color:var(--approve);font-size:16px}
+  .disc{font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-top:12px}
+
+  /* architecture bands */
+  .flow{margin-top:10px}
+  .band{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .band .blabel{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:12px}
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{flex:1 1 140px;border:1px solid var(--line-strong);border-radius:10px;padding:11px 13px;background:var(--paper);min-width:130px}
+  .chip .ct{font-family:var(--display);font-size:13.5px;font-weight:600;line-height:1.2}
+  .chip .cd{font-size:11.5px;color:var(--ink-soft);margin-top:4px;line-height:1.4}
+  .band.input{background:var(--navy-soft);border-color:#D4DAE6}
+  .band.decide{background:var(--approve-soft);border-color:#CDE6D9}
+  .band.decide .blabel{color:var(--approve)}.band.decide .chip{background:#fff;border-color:#C6E3D4}
+  .band.monitor{background:var(--amber-soft);border-color:#EEDcb4}
+  .band.monitor .blabel{color:var(--amber)}.band.monitor .chip{background:#fff;border-color:#EAD9B0}
+  .connector{display:flex;justify-content:center;padding:7px 0}.connector svg{display:block}
+  .loopnote{font-family:var(--mono);font-size:11px;color:var(--amber);text-align:center;padding:9px 0 0;font-weight:500}
+
+  /* next steps */
+  .next-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+  .placeholder{border:1.5px dashed var(--line-strong);border-radius:14px;padding:24px 22px;background:repeating-linear-gradient(135deg,transparent,transparent 11px,rgba(0,0,0,.012) 11px,rgba(0,0,0,.012) 22px);min-height:140px;display:flex;flex-direction:column}
+  .placeholder .pl-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);font-weight:600}
+  .placeholder h3{font-size:16px;margin:9px 0 6px;color:var(--ink)}
+  .placeholder p{font-size:13.5px;color:var(--ink-soft);margin:0}
+  .placeholder .stub{margin-top:auto;font-family:var(--mono);font-size:11px;color:var(--ink-faint);padding-top:14px}
+  a.placeholder{text-decoration:none;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+  a.placeholder:hover{border-color:var(--amber-bright);border-style:solid;box-shadow:0 6px 20px -10px rgba(200,128,10,.35)}
+  a.placeholder:hover .pl-tag{color:var(--amber-bright)}
+  a.placeholder .arrow{margin-top:auto;padding-top:14px;display:flex;align-items:center;justify-content:space-between}
+  a.placeholder .arrow span{font-family:var(--mono);font-size:11px;color:var(--amber);font-weight:600}
+  a.placeholder .arrow svg{opacity:.5;transition:opacity .15s,transform .15s}
+  a.placeholder:hover .arrow svg{opacity:1;transform:translateX(4px)}
+
+  footer{padding:40px 0 56px;color:var(--ink-faint);font-size:12.5px;font-family:var(--mono)}
+
+  @media(max-width:720px){
+    .l24-grid,.persona,.jcols,.next-grid,.levers,.fork-cols,.reasongrid,.vardef{grid-template-columns:1fr}
+    .ratebar{flex-direction:column}.ratebar .seg+.seg{border-left:none;border-top:1px solid var(--line)}
+    .pillar{grid-template-columns:1fr;gap:8px}.pillar .idx{font-size:24px}
+    .lf-split{gap:60px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="eyebrow">Product Strategy · Loans24</div>
+    <h1>The engine that approves more <em>also</em> prices lower.</h1>
+    <div class="sub">For a self-employed borrower, Loans24's real rival isn't slow paperwork — it's the bank charging less. Reading risk precisely closes that gap two ways at once: more customers, and lower rates.</div>
+    <div class="scope-row">
+      <div class="token"><span class="dot"></span><span>Channel</span><b>B2C</b></div>
+      <div class="token"><span class="dot"></span><span>Persona</span><b>Self-Employed</b></div>
+      <div class="token"><span class="dot"></span><span>Stage</span><b>Underwriting</b></div>
+      <div class="token"><span class="dot"></span><span>Peer</span><b>Spinny</b></div>
+      <div class="token"><span class="dot"></span><span>Rate benchmark</span><b>HDFC</b></div>
+    </div>
+    <div class="meta">DRAFT v2 · Used-car loan · Designs &amp; prototype linked separately</div>
+  </header>
+
+  <!-- 1. WHAT IS LOANS24 -->
+  <section id="loans24">
+    <div class="sec-head"><span class="sec-num">01</span><h2>What is Loans24</h2></div>
+    <p class="lead">The lending arm of Cars24 — and the fact that shapes this whole strategy is that it owns its NBFC, the marketplace, and the car's data, all at once.</p>
+    <div class="l24-grid">
+      <div class="fact"><div class="k">What it is</div><div class="v">RBI-registered NBFC (CARS24 Financial Services), on top of India's largest used-car marketplace.</div></div>
+      <div class="fact"><div class="k">Products</div><div class="v">Used-car loans, loan-against-car, top-ups, MSME/personal loans, balance transfer.</div></div>
+      <div class="fact"><div class="k">B2C terms today</div><div class="v">Up to <b>100%</b> financing, ~<b>10.99–12%</b> p.a., tenure up to 6–7 yrs.</div></div>
+      <div class="fact"><div class="k">Already built</div><div class="v"><b>Pre-approval in under 2 minutes</b> — Cars24 knows the car (300-pt check); banks take 2–3 days.</div></div>
+    </div>
+    <div class="pill-edge">
+      <div class="tag">So note</div>
+      <p>Speed is <b>already won</b> — sub-2-minute sanction is a live feature, and Spinny is fast too. So speed is table stakes, not the moat. The two things still left on the table are <b>who we can approve</b> and <b>what rate we can offer</b>.</p>
+    </div>
+  </section>
+
+  <!-- 2. THE LACUNA -->
+  <section id="lacuna">
+    <div class="sec-head"><span class="sec-num">02</span><h2>The lacuna we're attacking</h2></div>
+    <p class="lead">A used-car NBFC's hardest problem isn't speed — it's the interest rate. The customer feels it directly:</p>
+    <div class="quote" style="margin-top:16px">"Why should I pay Cars24 ₹3,000 more a month than my bank?"</div>
+    <div class="ratebar">
+      <div class="seg bank"><div class="who">Banks · HDFC / SBI</div><div class="rt">9.5–10.5%</div><div class="nt">Cheapest capital — but slow, document-heavy, prime-only</div></div>
+      <div class="seg nbfc"><div class="who">NBFCs · Cars24 / Spinny-class</div><div class="rt">12–15%</div><div class="nt">Fast and flexible — but visibly pricier</div></div>
+    </div>
+    <p class="lead" style="margin-bottom:20px">The root cause of that gap is a single thing: <b>NBFCs can't read self-employed risk precisely.</b> Faced with uncertainty, a lender protects itself in two costly ways — it <em>rejects</em> what it can't read (lost customers) and adds a fat <em>uncertainty premium</em> (high rate). One blind spot, two losses.</p>
+
+    <div class="lever-flow">
+      <div class="lf-top"><div class="lt">Our intervention</div><div class="lm">Read risk precisely — cash-flow × collateral</div></div>
+      <div class="lf-split">
+        <svg width="200" height="34" viewBox="0 0 200 34"><line x1="100" y1="0" x2="100" y2="8" stroke="#CDD3DB" stroke-width="2"/><path d="M100 8 C100 20, 40 14, 40 26" fill="none" stroke="#CDD3DB" stroke-width="2"/><path d="M100 8 C100 20, 160 14, 160 26" fill="none" stroke="#CDD3DB" stroke-width="2"/><path d="M35 21 L40 29 L45 21" fill="none" stroke="#CDD3DB" stroke-width="2" stroke-linejoin="round"/><path d="M155 21 L160 29 L165 21" fill="none" stroke="#CDD3DB" stroke-width="2" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="levers">
+        <div class="lever"><div class="ln">Lever 1 · Out-approve</div><h3>Approve more → market share</h3><p>Confidently assess borrowers competitors reject (thin-file, lumpy self-employed). Every safe "yes" others say "no" to is share captured.</p></div>
+        <div class="lever"><div class="ln">Lever 2 · Out-price</div><h3>Price lower → close the gap</h3><p>Precise risk reading strips the uncertainty premium. A good borrower gets a rate that moves toward the bank benchmark — the ₹3,000 shrinks.</p></div>
+      </div>
+      <div class="contrast-note">Both levers come from <b>one engine</b>. We're not picking between volume and margin — reading risk better moves both in the same direction.</div>
+    </div>
+  </section>
+
+  <!-- 3. CHANNEL: B2C vs B2B -->
+  <section id="channel">
+    <div class="sec-head"><span class="sec-num">03</span><h2>Which lending channel</h2></div>
+    <p class="lead">Cars24 lends two ways. We pick the one where AI moves the decision and the market is biggest.</p>
+
+    <div class="fork">
+      <div class="fork-top"><div class="fork-node">Loans24 lending</div></div>
+      <div class="fork-arrows">
+        <svg width="220" height="30" viewBox="0 0 220 30"><line x1="110" y1="0" x2="110" y2="7" stroke="#CDD3DB" stroke-width="2"/><path d="M110 7 C110 18, 55 12, 55 24" fill="none" stroke="#CDD3DB" stroke-width="2"/><path d="M110 7 C110 18, 165 12, 165 24" fill="none" stroke="#CDD3DB" stroke-width="2"/><path d="M50 19 L55 27 L60 19" fill="none" stroke="#1E9A66" stroke-width="2" stroke-linejoin="round"/><path d="M160 19 L165 27 L170 19" fill="none" stroke="#CDD3DB" stroke-width="2" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="fork-cols">
+        <div class="chan pick">
+          <div class="ch-h"><span class="cn">B2C · Digital Retail Lending</span><span class="pickbadge y">✓ Chosen</span></div>
+          <div class="ch-b">
+            <div class="row"><span class="rk">Who</span><span class="rv">Individual buyers purchasing a car on the app</span></div>
+            <div class="row"><span class="rk">Scale</span><span class="rv"><b>Mass market</b> — millions of heterogeneous buyers</span></div>
+            <div class="row"><span class="rk">Risk read</span><span class="rv">Hard — thin files, lumpy income → <b>AI decisive</b></span></div>
+          </div>
+        </div>
+        <div class="chan skip">
+          <div class="ch-h"><span class="cn">B2B · Unnati (dealer credit)</span><span class="pickbadge n">Not now</span></div>
+          <div class="ch-b">
+            <div class="row"><span class="rk">Who</span><span class="rv">Dealers buying from Cars24 auctions</span></div>
+            <div class="row"><span class="rk">Scale</span><span class="rv">Finite — a few thousand known dealers</span></div>
+            <div class="row"><span class="rk">Risk read</span><span class="rv">Already solved by direct auction history → <b>AI marginal</b></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="why-b2c">
+      <div class="wt">Why B2C wins</div>
+      <div class="reasongrid">
+        <div class="reason"><div class="rn">Market size</div><p>B2C is the mass individual-buyer market; B2B is a <b>finite set of known dealers</b>. The share worth capturing lives in B2C.</p></div>
+        <div class="reason"><div class="rn">AI leverage</div><p>B2C buyers are heterogeneous and thin-file — exactly where profiling AI is decisive. Dealers are <b>already underwritten</b> on their Cars24 transaction history, so AI adds little.</p></div>
+        <div class="reason"><div class="rn">Where the lacuna lives</div><p>The rate-gap pain and the approve/reject pain are <b>individual-buyer problems</b>. B2B credit is a revolving line, not a rate-shopped purchase.</p></div>
+        <div class="reason"><div class="rn">Engine fit</div><p>The composite inputs — a person's cash flow × the specific car's value — map to a B2C buyer, not a dealer's working-capital line.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. WHY THIS SCOPE -->
+  <section id="scope">
+    <div class="sec-head"><span class="sec-num">04</span><h2>Persona, stage &amp; competitor</h2></div>
+    <p class="lead">Inside B2C, we map every persona against every stage and ask one question of each cell: does AI change the <em>decision</em>, or just the polish?</p>
+
+    <div class="matrix-wrap">
+      <table class="matrix">
+        <thead><tr><th style="width:17%">Stage</th><th style="width:24%">Salaried</th><th style="width:27%">Self-Employed</th><th style="width:32%">Does AI change the decision?</th></tr></thead>
+        <tbody>
+          <tr><td class="stage">Onboarding</td><td><span class="cellt">Solved — eKYC + bureau pull</span></td><td><span class="cellt">Doc-heavy, high drop-off</span></td><td><span class="verdict-cosmetic">✕ Cosmetic</span><span class="vsub">India's public rails (eKYC, DigiLocker, AA) already do the heavy lifting.</span></td></tr>
+          <tr><td class="stage">Underwriting</td><td><span class="cellt">Easy — clean salary signal</span></td><td class="sel"><span class="sel-badge">★ Selected</span><span class="cellt">The hard problem — lumpy income, lagging ITR, thin files</span></td><td><span class="verdict-core">✓ Core</span><span class="vsub">The point where a borrower is approved, rejected <em>and</em> priced — both levers live here.</span></td></tr>
+          <tr><td class="stage">Servicing &amp; Collections</td><td><span class="cellt">Standard dunning</span></td><td><span class="cellt">High-stakes, reputationally fraught</span></td><td><span class="verdict-core">✓ Core</span><span class="vsub">Predictive delinquency — a natural extension of the same engine.</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="matrix-note">We chose <b>Underwriting × Self-Employed</b>: it's the one stage where both levers — approve-more and price-lower — are decided, and it's the most demo-able as a prototype. Servicing reuses the same engine later.</p>
+
+    <div class="choice">
+      <div class="top"><span class="axis">Peer competitor</span><span class="pick">Spinny</span><span class="chosen-badge">Like-for-like</span></div>
+      <p>Spinny is the only true peer — same model (marketplace + captive financing, assured cars, automated valuation, fast). But its lending is <b>routed to ~18 finance partners and approved at their discretion</b>, and only on Spinny-assured inventory. It inherits partner banks' prime bias and <b>can't fix its own underwriting</b>. That makes the contrast sharp: Spinny rejects the self-employed borrower we can approve.</p>
+      <div class="rejected"><b>Why not OLX / CarDekho-Rupyy here:</b> Rupyy is an entrenched threat but a different (aggregator) model; the journey contrast is muddier.</div>
+    </div>
+
+    <div class="choice">
+      <div class="top"><span class="axis">Rate benchmark</span><span class="pick">HDFC / SBI</span><span class="role-badge">The target to beat</span></div>
+      <p>HDFC isn't the journey foil — it's the <b>price floor we're chasing</b>. Banks own the cheapest capital (9.5–10.5%), which is exactly why customers hesitate. Lever 2 is measured against this number: how close can precise risk-reading move our rate toward the bank's?</p>
+      <div class="rejected"><b>Earlier draft used HDFC as the journey comparison</b> — corrected: on speed/journey we already match or beat banks, so the meaningful head-to-head is the peer (Spinny), with HDFC as the rate yardstick.</div>
+    </div>
+  </section>
+
+  <!-- 5. PERSONA -->
+  <section id="persona">
+    <div class="sec-head"><span class="sec-num">05</span><h2>The borrower we're designing for</h2></div>
+    <p class="lead">Rajesh is creditworthy but <em>document-poor</em>. His real repayment capacity is hard to <em>see</em> through traditional documents — so he gets rejected, or priced as if he were risky.</p>
+    <div class="persona">
+      <div class="pcard">
+        <div class="hd"><div class="nm">Rajesh, 38</div><div class="role">Wholesale auto-parts shop · Surat · 6 years in business</div></div>
+        <div class="body">
+          <div class="prow"><span class="k">Gross receipts</span><span class="vv">~₹45 L / yr</span></div>
+          <div class="prow"><span class="k">ITR net profit</span><span class="vv">~₹9 L (after expenses)</span></div>
+          <div class="prow"><span class="k">Real monthly cash</span><span class="vv">₹1.2–1.5 L · lumpy</span></div>
+          <div class="prow"><span class="k">Credit score</span><span class="vv">690 · thin file</span></div>
+          <div class="prow"><span class="k">Wants</span><span class="vv">₹6.5 L used SUV (via Cars24)</span></div>
+        </div>
+      </div>
+      <div class="why">
+        <h3>Why he's hard to underwrite — all of it legitimate</h3>
+        <div class="friction-item"><div class="fnum">1</div><p><b>No salary slip, no clean monthly credit.</b> Lumpy, seasonal income that salary-template models choke on.</p></div>
+        <div class="friction-item"><div class="fnum">2</div><p><b>The ITR lags reality.</b> An annual snapshot, net of depreciation and real expenses — it understates the cash he actually has today.</p></div>
+        <div class="friction-item"><div class="fnum">3</div><p><b>A thin bureau file.</b> A short formal-credit history at 690 makes him look riskier than he is.</p></div>
+        <div class="verdict"><span class="l">Result</span>Read as marginal → rejected, under-financed, or quoted a flat high "self-employed" rate. The reality: a strong borrower the document flow can't perceive — so he's a <b>lost customer</b> and, if approved, an <b>over-charged</b> one. Exactly the two losses from §2.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. JOURNEY -->
+  <section id="compare">
+    <div class="sec-head"><span class="sec-num">06</span><h2>Spinny vs Loans24 — the underwriting</h2></div>
+    <p class="lead">Both are fast. The difference is what happens to a borrower the lender can't easily read.</p>
+
+    <div class="jcols">
+      <div class="jcol bank">
+        <div class="jh">Spinny — frictionless, for prime<span class="tg">peer</span></div>
+        <div class="jbody">
+          <div class="jstep"><span class="si">1</span><span class="st">One-click financing inside a premium buying flow</span></div>
+          <div class="jstep"><span class="si">2</span><span class="st">Only <b>Spinny-assured</b> cars — valuation pre-automated</span></div>
+          <div class="jstep"><span class="si">3</span><span class="st">Credit routed to <b>~18 partner banks</b>, approved at their discretion</span></div>
+          <div class="jstep"><span class="si">4</span><span class="st">Inherits partners' <b>prime bias</b> — self-employed / thin-file falls out</span></div>
+          <div class="jstep"><span class="si">5</span><span class="st">Trades rate for convenience — flat, premium-padded pricing</span></div>
+          <div class="jstep"><span class="si">6</span><span class="st">Can't fix it — <b>doesn't own the risk engine</b></span></div>
+        </div>
+        <div class="joutcome">→ Rajesh rejected, or repriced high</div>
+      </div>
+      <div class="jcol ai">
+        <div class="jh">Loans24 — reads cash flow + collateral<span class="tg">reimagined</span></div>
+        <div class="jbody">
+          <div class="jstep"><span class="si">1</span><span class="st">Same in-app speed — Account Aggregator consent in seconds</span></div>
+          <div class="jstep"><span class="si">2</span><span class="st">Reconstructs <b>real, current</b> income from bank + GST</span></div>
+          <div class="jstep"><span class="si">3</span><span class="st">Models lumpy/seasonal cash flow instead of penalising it</span></div>
+          <div class="jstep"><span class="si">4</span><span class="st">Live Cars24 valuation of <b>this exact car</b></span></div>
+          <div class="jstep"><span class="si">5</span><span class="st">Owns the NBFC end-to-end → composite super-approval</span></div>
+          <div class="jstep"><span class="si">6</span><span class="st">Prices to <b>true</b> risk — strips the uncertainty premium</span></div>
+        </div>
+        <div class="joutcome">→ Rajesh approved, at a competitive rate</div>
+      </div>
+    </div>
+
+    <h3 style="font-family:var(--display);font-size:17px;margin:30px 0 0">Friction → reduction → which lever it pulls</h3>
+    <div class="tablewrap">
+      <table class="fric">
+        <thead><tr><th style="width:22%">Friction (peer / today)</th><th style="width:24%">Root cause</th><th style="width:31%">AI-core fix</th><th style="width:23%">Lever</th></tr></thead>
+        <tbody>
+          <tr><td class="fr">Non-prime rejected</td><td>Opaque self-employed risk → prime-only credit policy</td><td class="fx"><b>Cash-flow reconstruction</b> reads real income from AA + GST</td><td><span class="lvtag share">▲ Market share</span></td></tr>
+          <tr><td class="fr">Lumpy income mis-read</td><td>No salary template fits seasonal cash flow</td><td class="fx"><b>Volatility &amp; seasonality</b> modeling — pattern read correctly</td><td><span class="lvtag share">▲ Market share</span></td></tr>
+          <tr><td class="fr">Uncertainty-premium pricing</td><td>Can't resolve true risk → fat safety buffer in the rate</td><td class="fx"><b>Risk-based pricing</b> strips the buffer for good borrowers</td><td><span class="lvtag rate">▼ Lower rate</span></td></tr>
+          <tr><td class="fr">Collateral discounted</td><td>Lender can't see the specific car well</td><td class="fx"><b>Cars24 live valuation</b> — known asset, lower loss-given-default</td><td><span class="lvtag rate">▼ Lower rate</span></td></tr>
+          <tr><td class="fr">Underwriting not owned (Spinny)</td><td>Credit outsourced to ~18 partners</td><td class="fx">Loans24 <b>owns NBFC + data</b> end-to-end</td><td><span class="lvtag share">▲</span> <span class="lvtag rate">▼</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 7. THE TWO LEVERS + FORMULA -->
+  <section id="solution">
+    <div class="sec-head"><span class="sec-num">07</span><h2>The engine, and why it compounds</h2></div>
+    <p class="lead">Three components make one "Super-Approval" engine. Together they pull both levers — and the levers <em>multiply</em>.</p>
+
+    <div class="pillar"><div class="idx">1</div><div><div class="role-l">The spine</div><h3>Cash-flow underwriting</h3><p>Account Aggregator consent → reconstruct <b>real, current income</b> from bank + GST. The ITR becomes one weak signal, not the verdict. This is what lets us approve the borrowers others can't read.</p></div></div>
+    <div class="pillar"><div class="idx">2</div><div><div class="role-l">The moat</div><h3>Collateral × cash-flow composite</h3><p>No bank has the car data; no cash-flow fintech has the car; Spinny doesn't own its underwriting. Blending Cars24's <b>live asset value</b> with reconstructed income is the score only Loans24 can build.</p></div></div>
+    <div class="pillar"><div class="idx">3</div><div><div class="role-l">The payoff</div><h3>Risk-based pricing</h3><p>A precise risk read means a precise price. Good borrowers stop subsidising the unreadable — the uncertainty premium comes off, and the rate moves toward the bank benchmark.</p></div></div>
+
+    <div class="formula">
+      <div class="ft">The market-share formula</div>
+      <div class="eq">Captured volume <b>V</b> = <b>N</b> × <b>a(R)</b> × <b>c(Δr)</b> × <b>t</b></div>
+      <div class="vardef">
+        <div class="vd"><b>N</b> — addressable self-employed B2C buyers (large, and under-served)</div>
+        <div class="vd"><b>a(R)</b> — approval rate, rising with risk-read precision R</div>
+        <div class="vd"><b>c(Δr)</b> — offer acceptance, rising as the rate gap Δr shrinks</div>
+        <div class="vd"><b>t</b> — average ticket size</div>
+      </div>
+      <div class="punch">Improving the engine's precision <b>R</b> lifts <b>a(R)</b> (we approve more) <em>and</em> shrinks <b>Δr</b>, which lifts <b>c(Δr)</b> (more approved offers get taken). One investment moves <b>two multiplicative terms</b> — that's why it compounds, and why it beats any single-lever play.</div>
+    </div>
+
+    <div class="worked">
+      <div class="wh">Illustrative — what the two levers do to V</div>
+      <div class="wsteps">
+        <div class="wstep"><span class="wl">Baseline: 100 self-employed applicants, 45% approved, 55% of offers accepted</span><span class="wv">≈ 25 loans</span></div>
+        <div class="wstep"><span class="wl">Lever 1 — better profiling lifts approval 45% → 65%</span><span class="wv">→ 36 loans</span></div>
+        <div class="wstep"><span class="wl">Lever 2 — rate gap narrows, acceptance 55% → 72%</span><span class="wv">→ 47 loans</span></div>
+        <div class="wstep tot"><span class="wl">Combined effect on captured volume</span><span class="wv">≈ 1.9× </span></div>
+      </div>
+      <div class="disc">Numbers illustrative — they show the multiplicative mechanism, not a forecast. Real a(R) and c(Δr) curves are the thing to calibrate next.</div>
+    </div>
+
+    <p class="lead" style="margin-top:22px"><b>Prioritisation, in one line:</b> the highest-leverage thing Loans24 can build is the precision engine R — because in B2C, N is largest and both a and c are most improvable. That is the conclusion the formula forces.</p>
+  </section>
+
+  <!-- 8. ARCHITECTURE -->
+  <section id="architecture">
+    <div class="sec-head"><span class="sec-num">08</span><h2>Technical architecture</h2></div>
+    <p class="lead">Consent in, four engines read the signals, one score makes the call — and produces both a decision <em>and</em> a price.</p>
+    <div class="flow">
+      <div class="band input"><div class="blabel">Input · Consent</div><div class="chips">
+        <div class="chip"><div class="ct">Borrower applies</div><div class="cd">In-app, while choosing the car (sub-2-min, already live)</div></div>
+        <div class="chip"><div class="ct">Account Aggregator consent</div><div class="cd">Purpose-limited, revocable</div></div>
+      </div></div>
+      <div class="connector"><svg width="22" height="26" viewBox="0 0 22 26"><line x1="11" y1="0" x2="11" y2="18" stroke="#CDD3DB" stroke-width="2"/><path d="M5 14 L11 22 L17 14" fill="none" stroke="#CDD3DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="band"><div class="blabel">Data sources</div><div class="chips">
+        <div class="chip"><div class="ct">Bank transactions</div><div class="cd">Via AA — live, granular</div></div>
+        <div class="chip"><div class="ct">GST returns</div><div class="cd">Turnover &amp; seasonality</div></div>
+        <div class="chip"><div class="ct">Credit bureau</div><div class="cd">One signal, not the anchor</div></div>
+        <div class="chip"><div class="ct">Cars24 collateral graph</div><div class="cd">Condition, history, resale value</div></div>
+      </div></div>
+      <div class="connector"><svg width="22" height="26" viewBox="0 0 22 26"><line x1="11" y1="0" x2="11" y2="18" stroke="#CDD3DB" stroke-width="2"/><path d="M5 14 L11 22 L17 14" fill="none" stroke="#CDD3DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="band"><div class="blabel">AI engines</div><div class="chips">
+        <div class="chip"><div class="ct">Statement analyzer</div><div class="cd">Clean &amp; classify flows</div></div>
+        <div class="chip"><div class="ct">Income reconstruction</div><div class="cd">True capacity + volatility</div></div>
+        <div class="chip"><div class="ct">Fraud &amp; anomaly</div><div class="cd">Inflated / circular credits</div></div>
+        <div class="chip"><div class="ct">Collateral valuation</div><div class="cd">Real-time value of this car</div></div>
+      </div></div>
+      <div class="connector"><svg width="22" height="26" viewBox="0 0 22 26"><line x1="11" y1="0" x2="11" y2="18" stroke="#CDD3DB" stroke-width="2"/><path d="M5 14 L11 22 L17 14" fill="none" stroke="#CDD3DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="band decide"><div class="blabel">Decision · both levers</div><div class="chips">
+        <div class="chip"><div class="ct">Composite score</div><div class="cd">Cash-flow × collateral</div></div>
+        <div class="chip"><div class="ct">Approve / decline</div><div class="cd">▲ Lever 1 — market share</div></div>
+        <div class="chip"><div class="ct">Risk-based price</div><div class="cd">▼ Lever 2 — lower rate</div></div>
+      </div></div>
+      <div class="connector"><svg width="22" height="26" viewBox="0 0 22 26"><line x1="11" y1="0" x2="11" y2="18" stroke="#CDD3DB" stroke-width="2"/><path d="M5 14 L11 22 L17 14" fill="none" stroke="#CDD3DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="band monitor"><div class="blabel">Post-disbursal loop</div><div class="chips">
+        <div class="chip"><div class="ct">Ongoing AA monitoring</div><div class="cd">Balance &amp; inflow trends</div></div>
+        <div class="chip"><div class="ct">Early-warning signals</div><div class="cd">Stress 60–90 days ahead</div></div>
+        <div class="chip"><div class="ct">Proactive servicing</div><div class="cd">Restructure before a bounce</div></div>
+      </div><div class="loopnote">↺ re-scores the borrower and feeds Servicing &amp; Collections</div></div>
+    </div>
+  </section>
+
+  <!-- 9. NEXT STEPS -->
+  <section id="next" style="border-bottom:none">
+    <div class="sec-head"><span class="sec-num">09</span><h2>Next steps</h2></div>
+    <p class="lead">Placeholders — to be filled with designs and the working prototype.</p>
+    <div class="next-grid">
+      <a href="loans24-borrower-journey-screens.html" class="placeholder"><span class="pl-tag">Design</span><h3>Borrower journey screens</h3><p>Consent → decision UX, with trust markers around Account Aggregator.</p><div class="arrow"><span>Open design</span><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div></a>
+      <a href="underwriting-engine.html" class="placeholder"><span class="pl-tag">Prototype</span><h3>Decision-engine demo</h3><p>Feed a sample profile and watch income, collateral, score and price compute live.</p><div class="arrow"><span>Open prototype</span><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div></a>
+      <div class="placeholder"><span class="pl-tag">Solutioning — coming next</span><h3>Calibrate a(R) &amp; c(Δr)</h3><p>The real approval and acceptance curves behind the formula — the numbers that turn the mechanism into a forecast.</p><div class="stub">[ space reserved ]</div></div>
+      <div class="placeholder"><span class="pl-tag">Solutioning — coming next</span><h3>Scorecard &amp; AA spec</h3><p>Weights, knockout thresholds, the pricing curve, and the data/consent lifecycle.</p><div class="stub">[ space reserved ]</div></div>
+    </div>
+  </section>
+
+  <footer>
+    Loans24 · Self-Employed Underwriting · Draft v2 — for internal review<br>
+    Built on the Loans24/Cars24 lending analysis, Spinny's partner-routed financing model, and India's Account Aggregator framework. Rates, scores and worked numbers are illustrative.
+  </footer>
+
+</div>
+</body>
+</html>
